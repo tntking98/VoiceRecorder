@@ -3,38 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0a0a0f">
+<meta name="theme-color" content="#ffffff">
 <title>Speaking Practice</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
   :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --surface2: #1a1a24;
-    --border: #2a2a38;
-    --text: #e8e8f0;
-    --text-muted: #5a5a72;
-    --accent: #7c6aff;
-    --accent-glow: rgba(124, 106, 255, 0.3);
-    --red: #ff4757;
-    --red-glow: rgba(255, 71, 87, 0.3);
-    --green: #2ed573;
-    --mono: 'DM Mono', monospace;
-    --sans: 'Syne', sans-serif;
-  }
-
-  @media (prefers-color-scheme: light) {
-    :root {
-      --bg: #f4f4f8;
-      --surface: #ffffff;
-      --surface2: #ebebf3;
-      --border: #d0d0e0;
-      --text: #0a0a1a;
-      --text-muted: #9090a8;
-      --accent-glow: rgba(124, 106, 255, 0.15);
-      --red-glow: rgba(255, 71, 87, 0.15);
-    }
+    --bg:        #f7faf9;
+    --white:     #ffffff;
+    --red:       #f05c6e;
+    --red-dark:  #e04458;
+    --red-light: #fde8eb;
+    --mint:      #6dcfb8;
+    --mint-light:#e2f7f3;
+    --mint-dark: #4bb8a0;
+    --gray:      #b0bec5;
+    --gray-light:#eceff1;
+    --text:      #37474f;
+    --text-sub:  #90a4ae;
+    --shadow:    rgba(55,71,79,0.10);
+    --font:      'Nunito', sans-serif;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,9 +31,9 @@
     height: 100%;
     background: var(--bg);
     color: var(--text);
-    font-family: var(--mono);
-    overflow: hidden;
+    font-family: var(--font);
     -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
   }
 
   body {
@@ -53,37 +41,23 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: 2rem 1.5rem 2.5rem;
+    padding: 2.2rem 1.5rem 2.4rem;
     min-height: 100dvh;
-    position: relative;
-  }
-
-  /* Subtle ambient background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(124,106,255,0.07) 0%, transparent 70%);
-    pointer-events: none;
   }
 
   /* ── HEADER ── */
   .header {
     width: 100%;
     text-align: center;
-    flex-shrink: 0;
   }
-
   .app-title {
-    font-family: var(--sans);
-    font-size: clamp(1.1rem, 4vw, 1.4rem);
-    font-weight: 800;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-muted);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.02em;
   }
 
-  /* ── CENTER STAGE ── */
+  /* ── CENTER ── */
   .stage {
     flex: 1;
     display: flex;
@@ -92,271 +66,288 @@
     justify-content: center;
     gap: 1.6rem;
     width: 100%;
-    max-width: 480px;
   }
 
-  /* STATUS */
-  .status-wrap {
-    text-align: center;
-  }
-
-  .status-text {
-    font-family: var(--sans);
-    font-size: clamp(2rem, 8vw, 3rem);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1;
-    transition: color 0.3s ease, opacity 0.3s ease;
-    color: var(--text);
-  }
-
-  .status-text.recording { color: var(--red); }
-  .status-text.playing   { color: var(--accent); }
-  .status-text.finished  { color: var(--green); }
-
-  /* TIMER */
-  .timer {
-    font-family: var(--mono);
-    font-size: clamp(1.1rem, 4vw, 1.4rem);
-    font-weight: 300;
-    color: var(--text-muted);
-    letter-spacing: 0.1em;
-    min-height: 1.6em;
-    transition: color 0.3s ease;
-  }
-
-  .timer.recording { color: var(--red); }
-  .timer.playing   { color: var(--accent); }
-
-  /* WAVEFORM */
-  .waveform {
-    width: 100%;
-    max-width: 340px;
-    height: 64px;
+  /* ── MIC CIRCLE ── */
+  .mic-wrap {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+  }
+
+  /* outer ripple ring */
+  .mic-ring {
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+    background: var(--mint-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.35s ease;
     position: relative;
+  }
+  .mic-ring.recording {
+    background: var(--red-light);
+    animation: ring-pulse 1.4s ease-in-out infinite;
+  }
+  .mic-ring.playing {
+    background: var(--mint-light);
+  }
+
+  @keyframes ring-pulse {
+    0%,100% { transform: scale(1); }
+    50%      { transform: scale(1.04); }
+  }
+
+  /* inner circle (the button) */
+  .mic-btn {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--mint);
+    box-shadow: 0 8px 28px rgba(109,207,184,0.45);
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
+    -webkit-user-select: none;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .mic-btn.recording {
+    background: var(--red);
+    box-shadow: 0 8px 32px rgba(240,92,110,0.5);
+  }
+  .mic-btn:active { transform: scale(0.94); }
+
+  /* ripple on tap */
+  .mic-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .mic-btn:active::after { opacity: 1; }
+
+  /* mic SVG icon */
+  .mic-icon {
+    width: 58px;
+    height: 58px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: opacity 0.2s;
+  }
+
+  /* stop square icon (shown while recording) */
+  .stop-icon {
+    width: 36px;
+    height: 36px;
+    background: #fff;
+    border-radius: 6px;
+    display: none;
+  }
+  .mic-btn.recording .mic-icon { display: none; }
+  .mic-btn.recording .stop-icon { display: block; }
+
+  /* ── TIMER ── */
+  .timer {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.06em;
+    min-height: 2.4rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── WAVEFORM ── */
+  .waveform {
+    width: 100%;
+    max-width: 320px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
   }
 
   .wave-bar {
-    width: 4px;
+    width: 3.5px;
     border-radius: 2px;
-    background: var(--border);
-    transition: background 0.3s ease;
-    flex-shrink: 0;
-  }
-
-  /* idle: flat line */
-  .waveform.idle .wave-bar {
+    background: var(--gray-light);
     height: 3px;
-    background: var(--border);
-    animation: none;
+    flex-shrink: 0;
+    transition: background 0.3s;
   }
 
-  /* recording: animated bars */
   .waveform.recording .wave-bar {
     background: var(--red);
-    animation: wave-pulse 0.6s ease-in-out infinite alternate;
+    animation: wbar 0.5s ease-in-out infinite alternate;
   }
-
-  /* playback: gentle ripple */
   .waveform.playing .wave-bar {
-    background: var(--accent);
-    animation: wave-pulse 0.8s ease-in-out infinite alternate;
+    background: var(--mint);
+    animation: wbar 0.65s ease-in-out infinite alternate;
   }
 
-  @keyframes wave-pulse {
-    from { height: var(--min-h, 4px); }
-    to   { height: var(--max-h, 40px); }
+  @keyframes wbar {
+    from { height: var(--min-h, 3px); }
+    to   { height: var(--max-h, 36px); }
   }
 
-  /* Canvas for real audio viz */
-  #waveCanvas {
-    display: none;
+  /* ── PLAYBACK AREA ── */
+  .playback-card {
     width: 100%;
     max-width: 340px;
-    height: 64px;
-    border-radius: 4px;
-  }
-
-  /* PROGRESS AREA */
-  .progress-area {
-    width: 100%;
-    max-width: 360px;
+    background: var(--white);
+    border-radius: 20px;
+    padding: 1.1rem 1.3rem 1rem;
+    box-shadow: 0 4px 20px var(--shadow);
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transform: translateY(12px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
     pointer-events: none;
   }
-
-  .progress-area.visible {
+  .playback-card.visible {
     opacity: 1;
+    transform: translateY(0);
     pointer-events: auto;
   }
 
+  /* progress track */
   .progress-track {
     width: 100%;
-    height: 4px;
-    background: var(--surface2);
-    border-radius: 2px;
+    height: 5px;
+    background: var(--gray-light);
+    border-radius: 3px;
     position: relative;
     cursor: pointer;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.5rem;
+    touch-action: none;
   }
-
   .progress-fill {
     height: 100%;
-    background: var(--accent);
-    border-radius: 2px;
+    background: var(--mint);
+    border-radius: 3px;
     width: 0%;
-    transition: width 0.1s linear;
     pointer-events: none;
+    transition: width 0.1s linear;
   }
-
   .progress-thumb {
     position: absolute;
     top: 50%;
     left: 0%;
     transform: translate(-50%, -50%);
-    width: 14px;
-    height: 14px;
-    background: var(--accent);
+    width: 16px;
+    height: 16px;
+    background: var(--mint-dark);
     border-radius: 50%;
-    box-shadow: 0 0 0 4px var(--accent-glow);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 4px var(--shadow);
     cursor: grab;
-    transition: left 0.1s linear, box-shadow 0.2s;
+    transition: left 0.1s linear;
   }
-
-  .progress-thumb:active { cursor: grabbing; box-shadow: 0 0 0 8px var(--accent-glow); }
+  .progress-thumb:active { cursor: grabbing; }
 
   .progress-times {
     display: flex;
     justify-content: space-between;
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+    color: var(--text-sub);
+    font-weight: 600;
+    margin-bottom: 0.85rem;
   }
 
-  /* PLAY BUTTON */
-  .play-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1.4rem;
-    border-radius: 999px;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .play-btn.visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .play-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    box-shadow: 0 0 12px var(--accent-glow);
-  }
-
-  .play-btn:active { transform: scale(0.96); }
-
-  /* ── MAIN BUTTON ── */
-  .main-btn-wrap {
-    width: 100%;
-    max-width: 480px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-shrink: 0;
-  }
-
-  .main-btn {
-    width: 78%;
-    max-width: 320px;
-    padding: 1.15rem 1rem;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    font-family: var(--sans);
-    font-size: clamp(1rem, 4vw, 1.15rem);
-    font-weight: 700;
-    letter-spacing: 0.05em;
+  /* play/pause pill button inside card */
+  .play-pill {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.55rem;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.15s ease, box-shadow 0.3s ease;
-    -webkit-user-select: none;
-    user-select: none;
+    margin: 0 auto;
+    gap: 0.45rem;
+    width: 100px;
+    padding: 0.55rem 0;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    background: var(--mint-light);
+    color: var(--mint-dark);
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 0.88rem;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .play-pill:active { transform: scale(0.95); }
+  .play-pill.stop-mode {
+    background: var(--red-light);
+    color: var(--red-dark);
   }
 
-  /* idle / ready state */
-  .main-btn.state-idle {
-    background: linear-gradient(135deg, #7c6aff, #5c4de8);
+  /* ── BOTTOM BUTTON ── */
+  .bottom-wrap {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .stop-btn {
+    width: 82%;
+    max-width: 300px;
+    padding: 1rem 1rem;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    background: var(--red);
     color: #fff;
-    box-shadow: 0 4px 24px rgba(124,106,255,0.4), 0 1px 0 rgba(255,255,255,0.15) inset;
+    font-family: var(--font);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    box-shadow: 0 6px 22px rgba(240,92,110,0.38);
+    transition: opacity 0.3s, transform 0.15s, box-shadow 0.3s;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
   }
+  .stop-btn.visible { display: flex; }
+  .stop-btn:active  { transform: scale(0.96); }
 
-  /* recording state */
-  .main-btn.state-recording {
-    background: linear-gradient(135deg, #ff4757, #cc2233);
-    color: #fff;
-    box-shadow: 0 4px 24px rgba(255,71,87,0.45), 0 1px 0 rgba(255,255,255,0.1) inset;
-    animation: pulse-shadow 1.4s ease-in-out infinite;
+  .status-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-sub);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    min-height: 1.2em;
+    transition: color 0.3s;
   }
+  .status-label.recording { color: var(--red); }
+  .status-label.playing   { color: var(--mint-dark); }
+  .status-label.finished  { color: var(--mint-dark); }
 
-  @keyframes pulse-shadow {
-    0%, 100% { box-shadow: 0 4px 24px rgba(255,71,87,0.45); }
-    50%       { box-shadow: 0 4px 40px rgba(255,71,87,0.7); }
-  }
-
-  .main-btn:active { transform: scale(0.96); }
-
-  .main-btn .btn-icon {
-    font-size: 1.2em;
-    line-height: 1;
-  }
-
-  /* ripple effect */
-  .main-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(255,255,255,0.12);
-    border-radius: inherit;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .main-btn:active::after { opacity: 1; }
-
-  /* permission error */
   .error-msg {
-    margin-top: 0.8rem;
     font-size: 0.75rem;
     color: var(--red);
     text-align: center;
     opacity: 0;
     transition: opacity 0.3s;
-    letter-spacing: 0.03em;
   }
   .error-msg.show { opacity: 1; }
 
-  /* Hidden audio element */
   #audioEl { display: none; }
-
 </style>
 </head>
 <body>
@@ -367,20 +358,31 @@
 
 <main class="stage">
 
-  <div class="status-wrap">
-    <div class="status-text" id="statusText">Ready</div>
+  <!-- big circular mic button -->
+  <div class="mic-wrap">
+    <div class="mic-ring" id="micRing">
+      <button class="mic-btn" id="micBtn" aria-label="Start or stop recording">
+        <!-- mic icon -->
+        <svg class="mic-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <rect x="17" y="4" width="14" height="22" rx="7"/>
+          <path d="M9 22c0 8.284 6.716 15 15 15s15-6.716 15-15"/>
+          <line x1="24" y1="37" x2="24" y2="44"/>
+          <line x1="17" y1="44" x2="31" y2="44"/>
+        </svg>
+        <!-- stop square -->
+        <div class="stop-icon"></div>
+      </button>
+    </div>
   </div>
 
-  <div class="timer" id="timerDisplay">—</div>
+  <!-- timer -->
+  <div class="timer" id="timerDisplay">00:00</div>
 
-  <!-- Waveform bars (CSS-animated fallback + real audio bars) -->
-  <div class="waveform idle" id="waveform">
-    <!-- bars injected by JS -->
-  </div>
-  <canvas id="waveCanvas"></canvas>
+  <!-- waveform -->
+  <div class="waveform idle" id="waveform"></div>
 
-  <!-- Progress + play controls -->
-  <div class="progress-area" id="progressArea">
+  <!-- playback card -->
+  <div class="playback-card" id="playbackCard">
     <div class="progress-track" id="progressTrack">
       <div class="progress-fill" id="progressFill"></div>
       <div class="progress-thumb" id="progressThumb"></div>
@@ -389,20 +391,21 @@
       <span id="timeNow">00:00</span>
       <span id="timeTot">00:00</span>
     </div>
+    <button class="play-pill" id="playPill">
+      <span id="playPillIcon">▶</span>
+      <span id="playPillLabel">Play</span>
+    </button>
   </div>
-
-  <button class="play-btn" id="playBtn" aria-label="Play recording">
-    <span class="btn-icon">▶</span>
-    <span id="playBtnLabel">Play</span>
-  </button>
 
 </main>
 
-<div class="main-btn-wrap">
-  <button class="main-btn state-idle" id="mainBtn" aria-label="Start recording">
-    <span class="btn-icon" id="mainBtnIcon">🎤</span>
-    <span id="mainBtnLabel">Start Recording</span>
+<!-- bottom area: stop button + status -->
+<div class="bottom-wrap">
+  <button class="stop-btn" id="stopBtn">
+    <span>■</span>
+    <span>Stop Recording</span>
   </button>
+  <div class="status-label" id="statusLabel">Tap mic to start</div>
   <div class="error-msg" id="errorMsg"></div>
 </div>
 
@@ -410,41 +413,39 @@
 
 <script>
 (() => {
-  /* ── STATE ── */
-  const S = { IDLE: 'idle', RECORDING: 'recording', PLAYING: 'playing', FINISHED: 'finished' };
+  const S = { IDLE:'idle', RECORDING:'recording', PLAYING:'playing', FINISHED:'finished' };
   let state = S.IDLE;
 
-  /* ── DOM ── */
-  const statusText   = document.getElementById('statusText');
+  const micBtn       = document.getElementById('micBtn');
+  const micRing      = document.getElementById('micRing');
   const timerDisplay = document.getElementById('timerDisplay');
   const waveformEl   = document.getElementById('waveform');
-  const progressArea = document.getElementById('progressArea');
+  const playbackCard = document.getElementById('playbackCard');
+  const progressTrack= document.getElementById('progressTrack');
   const progressFill = document.getElementById('progressFill');
   const progressThumb= document.getElementById('progressThumb');
-  const progressTrack= document.getElementById('progressTrack');
   const timeNow      = document.getElementById('timeNow');
   const timeTot      = document.getElementById('timeTot');
-  const playBtn      = document.getElementById('playBtn');
-  const playBtnLabel = document.getElementById('playBtnLabel');
-  const mainBtn      = document.getElementById('mainBtn');
-  const mainBtnIcon  = document.getElementById('mainBtnIcon');
-  const mainBtnLabel = document.getElementById('mainBtnLabel');
+  const playPill     = document.getElementById('playPill');
+  const playPillIcon = document.getElementById('playPillIcon');
+  const playPillLabel= document.getElementById('playPillLabel');
+  const stopBtn      = document.getElementById('stopBtn');
+  const statusLabel  = document.getElementById('statusLabel');
   const errorMsg     = document.getElementById('errorMsg');
   const audioEl      = document.getElementById('audioEl');
 
   /* ── WAVEFORM BARS ── */
-  const BAR_COUNT = 28;
+  const BAR_COUNT = 36;
   const bars = [];
   for (let i = 0; i < BAR_COUNT; i++) {
     const b = document.createElement('div');
     b.className = 'wave-bar';
-    // stagger animation delays & heights
-    const minH = 3 + Math.random() * 6;
-    const maxH = 18 + Math.random() * 38;
+    const minH = 3 + Math.random() * 4;
+    const maxH = 14 + Math.random() * 28;
     b.style.setProperty('--min-h', minH + 'px');
     b.style.setProperty('--max-h', maxH + 'px');
-    b.style.animationDelay = (i * 0.04 + Math.random() * 0.2) + 's';
-    b.style.animationDuration = (0.45 + Math.random() * 0.4) + 's';
+    b.style.animationDelay = (i * 0.035 + Math.random() * 0.18) + 's';
+    b.style.animationDuration = (0.4 + Math.random() * 0.35) + 's';
     waveformEl.appendChild(b);
     bars.push(b);
   }
@@ -457,24 +458,17 @@
   let timerInterval = null;
   let recSeconds    = 0;
 
-  /* ── WEB AUDIO for real-time viz ── */
-  let audioCtx      = null;
-  let analyser      = null;
-  let sourceNode    = null;
-  let vizRaf        = null;
-  let dataArray     = null;
+  /* ── WEB AUDIO ── */
+  let audioCtx = null, analyser = null, sourceNode = null, vizRaf = null, dataArray = null;
 
-  /* ── helpers ── */
   const fmt = s => {
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
+    const m = Math.floor(s / 60), sec = Math.floor(s % 60);
     return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
   };
 
   function revokeURL() {
     if (currentURL) { URL.revokeObjectURL(currentURL); currentURL = null; }
-    currentBlob = null;
-    audioEl.src = '';
+    currentBlob = null; audioEl.src = '';
   }
 
   function setError(msg) {
@@ -483,76 +477,56 @@
     setTimeout(() => errorMsg.classList.remove('show'), 4000);
   }
 
-  /* ── WAVEFORM MODES ── */
   function setWaveMode(mode) {
     waveformEl.className = 'waveform ' + mode;
-    // reset bars to flat when idle/finished
     if (mode === 'idle' || mode === 'finished') {
       bars.forEach(b => { b.style.height = '3px'; });
     }
   }
 
-  /* real-time analyser draw */
   function startViz() {
     if (!analyser) return;
     const draw = () => {
       vizRaf = requestAnimationFrame(draw);
       analyser.getByteFrequencyData(dataArray);
-      const bucketSize = Math.floor(dataArray.length / BAR_COUNT);
+      const bucket = Math.floor(dataArray.length / BAR_COUNT);
       for (let i = 0; i < BAR_COUNT; i++) {
-        let sum = 0;
-        for (let j = 0; j < bucketSize; j++) sum += dataArray[i * bucketSize + j];
-        const avg = sum / bucketSize;
-        const h = Math.max(3, (avg / 255) * 58);
+        let s = 0;
+        for (let j = 0; j < bucket; j++) s += dataArray[i * bucket + j];
+        const h = Math.max(3, (s / bucket / 255) * 46);
         bars[i].style.height = h + 'px';
       }
     };
     draw();
   }
-
-  function stopViz() {
-    if (vizRaf) { cancelAnimationFrame(vizRaf); vizRaf = null; }
-  }
+  function stopViz() { if (vizRaf) { cancelAnimationFrame(vizRaf); vizRaf = null; } }
 
   /* ── RECORD ── */
   async function startRecording() {
     try {
-      revokeURL();
-      audioChunks = [];
-
+      revokeURL(); audioChunks = [];
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
 
-      // Web Audio for viz
-      audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
-      analyser  = audioCtx.createAnalyser();
-      analyser.fftSize = 256;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser(); analyser.fftSize = 256;
       dataArray = new Uint8Array(analyser.frequencyBinCount);
       sourceNode = audioCtx.createMediaStreamSource(stream);
       sourceNode.connect(analyser);
 
-      // MediaRecorder
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
         : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
-          ? 'audio/ogg;codecs=opus'
-          : 'audio/webm';
+          ? 'audio/ogg;codecs=opus' : 'audio/webm';
 
       mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
       mediaRecorder.onstop = onRecordStop;
       mediaRecorder.start(100);
 
-      // state
       setState(S.RECORDING);
-      recSeconds = 0;
-      timerDisplay.textContent = fmt(0);
-      timerInterval = setInterval(() => {
-        recSeconds++;
-        timerDisplay.textContent = fmt(recSeconds);
-      }, 1000);
-
-      setWaveMode('recording');
-      startViz();
+      recSeconds = 0; timerDisplay.textContent = fmt(0);
+      timerInterval = setInterval(() => { recSeconds++; timerDisplay.textContent = fmt(recSeconds); }, 1000);
+      setWaveMode('recording'); startViz();
 
     } catch (err) {
       console.error(err);
@@ -565,169 +539,125 @@
       mediaRecorder.stop();
       mediaRecorder.stream.getTracks().forEach(t => t.stop());
     }
-    clearInterval(timerInterval);
-    stopViz();
+    clearInterval(timerInterval); stopViz();
     if (audioCtx) { audioCtx.close(); audioCtx = null; }
     setWaveMode('idle');
   }
 
   function onRecordStop() {
     currentBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
-    audioChunks  = [];
-    currentURL   = URL.createObjectURL(currentBlob);
-    audioEl.src  = currentURL;
-    audioEl.load();
+    audioChunks = [];
+    currentURL  = URL.createObjectURL(currentBlob);
+    audioEl.src = currentURL; audioEl.load();
     audioEl.oncanplaythrough = () => {
       audioEl.oncanplaythrough = null;
-      showProgress();
-      autoPlay();
+      showPlayback(); autoPlay();
     };
   }
 
   /* ── PLAYBACK ── */
-  function showProgress() {
-    const dur = audioEl.duration || 0;
-    timeTot.textContent = fmt(dur);
-    progressArea.classList.add('visible');
-    playBtn.classList.add('visible');
+  function showPlayback() {
+    timeTot.textContent = fmt(audioEl.duration || 0);
+    playbackCard.classList.add('visible');
   }
 
-  function autoPlay() {
-    audioEl.play().catch(console.warn);
-  }
+  function autoPlay() { audioEl.play().catch(console.warn); }
 
-  audioEl.onplay = () => {
-    setState(S.PLAYING);
-    setWaveMode('playing');
-    updatePlayBtn();
-  };
-
+  audioEl.onplay = () => { setState(S.PLAYING); setWaveMode('playing'); updatePlayPill(); };
   audioEl.onpause = audioEl.onended = () => {
-    if (state === S.PLAYING) {
-      setState(S.FINISHED);
-      setWaveMode('finished');
-    }
-    updatePlayBtn();
+    if (state === S.PLAYING) { setState(S.FINISHED); setWaveMode('finished'); }
+    updatePlayPill();
     if (audioEl.ended) {
-      progressFill.style.width = '100%';
-      progressThumb.style.left  = '100%';
+      progressFill.style.width = '100%'; progressThumb.style.left = '100%';
       timeNow.textContent = timeTot.textContent;
     }
   };
-
   audioEl.ontimeupdate = () => {
-    const cur = audioEl.currentTime;
-    const dur = audioEl.duration || 1;
-    const pct = Math.min((cur / dur) * 100, 100);
-    progressFill.style.width  = pct + '%';
-    progressThumb.style.left  = pct + '%';
-    timeNow.textContent = fmt(cur);
+    const pct = Math.min((audioEl.currentTime / (audioEl.duration || 1)) * 100, 100);
+    progressFill.style.width = pct + '%'; progressThumb.style.left = pct + '%';
+    timeNow.textContent = fmt(audioEl.currentTime);
   };
 
-  function updatePlayBtn() {
+  function updatePlayPill() {
     if (state === S.PLAYING) {
-      playBtn.querySelector('.btn-icon').textContent = '■';
-      playBtnLabel.textContent = 'Stop';
-    } else if (state === S.FINISHED) {
-      playBtn.querySelector('.btn-icon').textContent = '▶';
-      playBtnLabel.textContent = 'Replay';
+      playPillIcon.textContent = '■'; playPillLabel.textContent = 'Stop';
+      playPill.classList.add('stop-mode');
     } else {
-      playBtn.querySelector('.btn-icon').textContent = '▶';
-      playBtnLabel.textContent = 'Play';
+      playPillIcon.textContent = '▶';
+      playPillLabel.textContent = state === S.FINISHED ? 'Replay' : 'Play';
+      playPill.classList.remove('stop-mode');
     }
   }
 
-  playBtn.addEventListener('click', () => {
+  playPill.addEventListener('click', () => {
     if (!currentURL) return;
-    if (state === S.PLAYING) {
-      audioEl.pause();
-    } else {
-      audioEl.currentTime = audioEl.ended ? 0 : audioEl.currentTime;
-      audioEl.play().catch(console.warn);
-    }
+    if (state === S.PLAYING) { audioEl.pause(); }
+    else { audioEl.currentTime = audioEl.ended ? 0 : audioEl.currentTime; audioEl.play().catch(console.warn); }
   });
 
   /* ── PROGRESS DRAG ── */
   let dragging = false;
-
-  function seekFromX(clientX) {
+  function seekX(x) {
     const rect = progressTrack.getBoundingClientRect();
-    const pct  = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    const dur  = audioEl.duration || 0;
-    audioEl.currentTime = pct * dur;
-    progressFill.style.width = (pct * 100) + '%';
-    progressThumb.style.left  = (pct * 100) + '%';
+    const pct = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
+    audioEl.currentTime = pct * (audioEl.duration || 0);
+    progressFill.style.width = (pct*100) + '%'; progressThumb.style.left = (pct*100) + '%';
     timeNow.textContent = fmt(audioEl.currentTime);
   }
-
-  progressTrack.addEventListener('pointerdown', e => {
-    if (!currentURL) return;
-    dragging = true;
-    progressTrack.setPointerCapture(e.pointerId);
-    seekFromX(e.clientX);
-  });
-
-  progressTrack.addEventListener('pointermove', e => {
-    if (dragging) seekFromX(e.clientX);
-  });
-
+  progressTrack.addEventListener('pointerdown', e => { if (!currentURL) return; dragging = true; progressTrack.setPointerCapture(e.pointerId); seekX(e.clientX); });
+  progressTrack.addEventListener('pointermove', e => { if (dragging) seekX(e.clientX); });
   progressTrack.addEventListener('pointerup', () => { dragging = false; });
 
-  /* ── STATE MACHINE ── */
+  /* ── STATE ── */
   function setState(s) {
     state = s;
-    // status text
-    const labels = { idle:'Ready', recording:'Recording...', playing:'Playing...', finished:'Finished' };
-    statusText.textContent = labels[s] || 'Ready';
-    statusText.className   = 'status-text ' + (s !== S.IDLE ? s : '');
+    const labels = { idle:'Tap mic to start', recording:'Recording...', playing:'Playing...', finished:'Finished' };
+    statusLabel.textContent = labels[s];
+    statusLabel.className = 'status-label ' + (s !== S.IDLE ? s : '');
 
-    // timer color
-    timerDisplay.className = 'timer ' + (s === S.RECORDING ? 'recording' : s === S.PLAYING ? 'playing' : '');
-
-    // main button
+    // mic button appearance
     if (s === S.RECORDING) {
-      mainBtn.className = 'main-btn state-recording';
-      mainBtnIcon.textContent = '■';
-      mainBtnLabel.textContent = 'Stop Recording';
+      micBtn.classList.add('recording');
+      micRing.classList.add('recording');
     } else {
-      mainBtn.className = 'main-btn state-idle';
-      mainBtnIcon.textContent = '🎤';
-      mainBtnLabel.textContent = 'Start Recording';
+      micBtn.classList.remove('recording');
+      micRing.classList.remove('recording');
+      if (s === S.PLAYING) micRing.classList.add('playing');
+      else micRing.classList.remove('playing');
     }
+
+    // stop button below
+    if (s === S.RECORDING) { stopBtn.classList.add('visible'); }
+    else { stopBtn.classList.remove('visible'); }
 
     if (s === S.IDLE) {
-      timerDisplay.textContent = '—';
-      progressArea.classList.remove('visible');
-      playBtn.classList.remove('visible');
+      timerDisplay.textContent = '00:00';
+      playbackCard.classList.remove('visible');
     }
-
-    updatePlayBtn();
+    updatePlayPill();
   }
 
-  /* ── MAIN BUTTON ── */
-  mainBtn.addEventListener('click', () => {
+  /* ── MIC BUTTON: start recording ── */
+  micBtn.addEventListener('click', () => {
     if (state === S.IDLE || state === S.FINISHED || state === S.PLAYING) {
-      // stop any playback
-      if (state === S.PLAYING || state === S.FINISHED) {
-        audioEl.pause();
-        audioEl.currentTime = 0;
-      }
+      if (state === S.PLAYING || state === S.FINISHED) { audioEl.pause(); audioEl.currentTime = 0; }
       startRecording();
-    } else if (state === S.RECORDING) {
-      stopRecording();
     }
+    // while recording, mic btn does nothing (use stop button below)
   });
 
-  /* ── CLEANUP on unload ── */
+  /* ── STOP BUTTON ── */
+  stopBtn.addEventListener('click', () => {
+    if (state === S.RECORDING) stopRecording();
+  });
+
+  /* ── CLEANUP ── */
   window.addEventListener('beforeunload', () => {
     revokeURL();
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-      mediaRecorder.stream.getTracks().forEach(t => t.stop());
-    }
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stream.getTracks().forEach(t => t.stop());
     if (audioCtx) audioCtx.close();
   });
 
-  /* ── INIT ── */
   setState(S.IDLE);
 })();
 </script>
