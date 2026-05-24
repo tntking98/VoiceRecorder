@@ -9,20 +9,20 @@
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
   :root {
-    --bg:        #f7faf9;
-    --white:     #ffffff;
-    --red:       #f05c6e;
-    --red-dark:  #e04458;
-    --red-light: #fde8eb;
-    --mint:      #6dcfb8;
-    --mint-light:#e2f7f3;
-    --mint-dark: #4bb8a0;
-    --gray:      #b0bec5;
-    --gray-light:#eceff1;
-    --text:      #37474f;
-    --text-sub:  #90a4ae;
-    --shadow:    rgba(55,71,79,0.10);
-    --font:      'Nunito', sans-serif;
+    --bg:         #f7faf9;
+    --white:      #ffffff;
+    --red:        #f05c6e;
+    --red-dark:   #e04458;
+    --red-light:  #fde8eb;
+    --mint:       #6dcfb8;
+    --mint-light: #e2f7f3;
+    --mint-dark:  #4bb8a0;
+    --gray:       #b0bec5;
+    --gray-light: #eceff1;
+    --text:       #37474f;
+    --text-sub:   #90a4ae;
+    --shadow:     rgba(55,71,79,0.10);
+    --font:       'Nunito', sans-serif;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -46,10 +46,7 @@
   }
 
   /* ── HEADER ── */
-  .header {
-    width: 100%;
-    text-align: center;
-  }
+  .header { width: 100%; text-align: center; }
   .app-title {
     font-size: 1.15rem;
     font-weight: 700;
@@ -57,7 +54,7 @@
     letter-spacing: 0.02em;
   }
 
-  /* ── CENTER ── */
+  /* ── CENTER STAGE ── */
   .stage {
     flex: 1;
     display: flex;
@@ -68,15 +65,13 @@
     width: 100%;
   }
 
-  /* ── MIC CIRCLE ── */
+  /* ── MIC DISPLAY (NOT a button) ── */
   .mic-wrap {
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  /* outer ripple ring */
   .mic-ring {
     width: 210px;
     height: 210px;
@@ -86,58 +81,36 @@
     align-items: center;
     justify-content: center;
     transition: background 0.35s ease;
-    position: relative;
   }
   .mic-ring.recording {
     background: var(--red-light);
     animation: ring-pulse 1.4s ease-in-out infinite;
   }
-  .mic-ring.playing {
-    background: var(--mint-light);
-  }
+  .mic-ring.playing { background: var(--mint-light); }
 
   @keyframes ring-pulse {
     0%,100% { transform: scale(1); }
-    50%      { transform: scale(1.04); }
+    50%      { transform: scale(1.05); }
   }
 
-  /* inner circle (the button) */
-  .mic-btn {
+  .mic-face {
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    border: none;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--mint);
     box-shadow: 0 8px 28px rgba(109,207,184,0.45);
-    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
-    -webkit-user-select: none;
-    user-select: none;
-    position: relative;
-    overflow: hidden;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    pointer-events: none;
   }
-  .mic-btn.recording {
+  .mic-face.recording {
     background: var(--red);
     box-shadow: 0 8px 32px rgba(240,92,110,0.5);
   }
-  .mic-btn:active { transform: scale(0.94); }
+  .mic-face.playing { background: var(--mint); }
 
-  /* ripple on tap */
-  .mic-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.18);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .mic-btn:active::after { opacity: 1; }
-
-  /* mic SVG icon */
   .mic-icon {
     width: 58px;
     height: 58px;
@@ -146,19 +119,25 @@
     stroke-width: 3;
     stroke-linecap: round;
     stroke-linejoin: round;
-    transition: opacity 0.2s;
+    display: block;
   }
-
-  /* stop square icon (shown while recording) */
-  .stop-icon {
+  .pause-icon {
+    display: none;
     width: 36px;
     height: 36px;
-    background: #fff;
-    border-radius: 6px;
-    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
-  .mic-btn.recording .mic-icon { display: none; }
-  .mic-btn.recording .stop-icon { display: block; }
+  .pause-icon span {
+    display: block;
+    width: 10px;
+    height: 34px;
+    background: #fff;
+    border-radius: 4px;
+  }
+  .mic-face.recording .mic-icon  { display: none; }
+  .mic-face.recording .pause-icon { display: flex; }
 
   /* ── TIMER ── */
   .timer {
@@ -166,7 +145,6 @@
     font-weight: 700;
     color: var(--text);
     letter-spacing: 0.06em;
-    min-height: 2.4rem;
     font-variant-numeric: tabular-nums;
   }
 
@@ -180,16 +158,13 @@
     justify-content: center;
     gap: 3px;
   }
-
   .wave-bar {
     width: 3.5px;
     border-radius: 2px;
     background: var(--gray-light);
     height: 3px;
     flex-shrink: 0;
-    transition: background 0.3s;
   }
-
   .waveform.recording .wave-bar {
     background: var(--red);
     animation: wbar 0.5s ease-in-out infinite alternate;
@@ -198,13 +173,12 @@
     background: var(--mint);
     animation: wbar 0.65s ease-in-out infinite alternate;
   }
-
   @keyframes wbar {
     from { height: var(--min-h, 3px); }
     to   { height: var(--max-h, 36px); }
   }
 
-  /* ── PLAYBACK AREA ── */
+  /* ── PLAYBACK CARD ── */
   .playback-card {
     width: 100%;
     max-width: 340px;
@@ -223,7 +197,6 @@
     pointer-events: auto;
   }
 
-  /* progress track */
   .progress-track {
     width: 100%;
     height: 5px;
@@ -267,14 +240,13 @@
     margin-bottom: 0.85rem;
   }
 
-  /* play/pause pill button inside card */
   .play-pill {
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto;
     gap: 0.45rem;
-    width: 100px;
+    width: 110px;
     padding: 0.55rem 0;
     border-radius: 999px;
     border: none;
@@ -287,51 +259,61 @@
     transition: background 0.2s, transform 0.15s;
   }
   .play-pill:active { transform: scale(0.95); }
-  .play-pill.stop-mode {
-    background: var(--red-light);
-    color: var(--red-dark);
-  }
+  .play-pill.stop-mode { background: var(--red-light); color: var(--red-dark); }
 
-  /* ── BOTTOM BUTTON ── */
+  /* ── BOTTOM AREA ── */
   .bottom-wrap {
     width: 100%;
     max-width: 360px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.6rem;
   }
 
-  .stop-btn {
+  /* Always-visible main action button */
+  .main-btn {
     width: 82%;
     max-width: 300px;
-    padding: 1rem 1rem;
+    padding: 1.05rem 1rem;
     border-radius: 999px;
     border: none;
     cursor: pointer;
-    background: var(--red);
-    color: #fff;
     font-family: var(--font);
     font-size: 1.05rem;
     font-weight: 800;
     letter-spacing: 0.02em;
-    box-shadow: 0 6px 22px rgba(240,92,110,0.38);
-    transition: opacity 0.3s, transform 0.15s, box-shadow 0.3s;
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
+    transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.12s ease;
+    -webkit-user-select: none;
+    user-select: none;
   }
-  .stop-btn.visible { display: flex; }
-  .stop-btn:active  { transform: scale(0.96); }
+  .main-btn.state-idle {
+    background: var(--mint);
+    color: #fff;
+    box-shadow: 0 6px 22px rgba(109,207,184,0.45);
+  }
+  .main-btn.state-recording {
+    background: var(--red);
+    color: #fff;
+    box-shadow: 0 6px 22px rgba(240,92,110,0.42);
+    animation: btn-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes btn-pulse {
+    0%,100% { box-shadow: 0 6px 22px rgba(240,92,110,0.42); }
+    50%      { box-shadow: 0 6px 34px rgba(240,92,110,0.65); }
+  }
+  .main-btn:active { transform: scale(0.96); }
 
   .status-label {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-sub);
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    min-height: 1.2em;
     transition: color 0.3s;
   }
   .status-label.recording { color: var(--red); }
@@ -358,30 +340,25 @@
 
 <main class="stage">
 
-  <!-- big circular mic button -->
+  <!-- display-only circle, NOT a button -->
   <div class="mic-wrap">
     <div class="mic-ring" id="micRing">
-      <button class="mic-btn" id="micBtn" aria-label="Start or stop recording">
-        <!-- mic icon -->
+      <div class="mic-face" id="micFace">
         <svg class="mic-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
           <rect x="17" y="4" width="14" height="22" rx="7"/>
           <path d="M9 22c0 8.284 6.716 15 15 15s15-6.716 15-15"/>
           <line x1="24" y1="37" x2="24" y2="44"/>
           <line x1="17" y1="44" x2="31" y2="44"/>
         </svg>
-        <!-- stop square -->
-        <div class="stop-icon"></div>
-      </button>
+        <div class="pause-icon"><span></span><span></span></div>
+      </div>
     </div>
   </div>
 
-  <!-- timer -->
   <div class="timer" id="timerDisplay">00:00</div>
 
-  <!-- waveform -->
-  <div class="waveform idle" id="waveform"></div>
+  <div class="waveform" id="waveform"></div>
 
-  <!-- playback card -->
   <div class="playback-card" id="playbackCard">
     <div class="progress-track" id="progressTrack">
       <div class="progress-fill" id="progressFill"></div>
@@ -399,13 +376,13 @@
 
 </main>
 
-<!-- bottom area: stop button + status -->
+<!-- ALWAYS VISIBLE bottom button -->
 <div class="bottom-wrap">
-  <button class="stop-btn" id="stopBtn">
-    <span>■</span>
-    <span>Stop Recording</span>
+  <button class="main-btn state-idle" id="mainBtn">
+    <span id="mainBtnIcon">🎤</span>
+    <span id="mainBtnLabel">Start Recording</span>
   </button>
-  <div class="status-label" id="statusLabel">Tap mic to start</div>
+  <div class="status-label" id="statusLabel">Ready</div>
   <div class="error-msg" id="errorMsg"></div>
 </div>
 
@@ -416,8 +393,8 @@
   const S = { IDLE:'idle', RECORDING:'recording', PLAYING:'playing', FINISHED:'finished' };
   let state = S.IDLE;
 
-  const micBtn       = document.getElementById('micBtn');
   const micRing      = document.getElementById('micRing');
+  const micFace      = document.getElementById('micFace');
   const timerDisplay = document.getElementById('timerDisplay');
   const waveformEl   = document.getElementById('waveform');
   const playbackCard = document.getElementById('playbackCard');
@@ -429,7 +406,9 @@
   const playPill     = document.getElementById('playPill');
   const playPillIcon = document.getElementById('playPillIcon');
   const playPillLabel= document.getElementById('playPillLabel');
-  const stopBtn      = document.getElementById('stopBtn');
+  const mainBtn      = document.getElementById('mainBtn');
+  const mainBtnIcon  = document.getElementById('mainBtnIcon');
+  const mainBtnLabel = document.getElementById('mainBtnLabel');
   const statusLabel  = document.getElementById('statusLabel');
   const errorMsg     = document.getElementById('errorMsg');
   const audioEl      = document.getElementById('audioEl');
@@ -440,31 +419,19 @@
   for (let i = 0; i < BAR_COUNT; i++) {
     const b = document.createElement('div');
     b.className = 'wave-bar';
-    const minH = 3 + Math.random() * 4;
-    const maxH = 14 + Math.random() * 28;
-    b.style.setProperty('--min-h', minH + 'px');
-    b.style.setProperty('--max-h', maxH + 'px');
+    b.style.setProperty('--min-h', (3 + Math.random() * 4) + 'px');
+    b.style.setProperty('--max-h', (14 + Math.random() * 28) + 'px');
     b.style.animationDelay = (i * 0.035 + Math.random() * 0.18) + 's';
     b.style.animationDuration = (0.4 + Math.random() * 0.35) + 's';
     waveformEl.appendChild(b);
     bars.push(b);
   }
 
-  /* ── RECORDING STATE ── */
-  let mediaRecorder = null;
-  let audioChunks   = [];
-  let currentBlob   = null;
-  let currentURL    = null;
-  let timerInterval = null;
-  let recSeconds    = 0;
-
-  /* ── WEB AUDIO ── */
+  let mediaRecorder = null, audioChunks = [], currentBlob = null, currentURL = null;
+  let timerInterval = null, recSeconds = 0;
   let audioCtx = null, analyser = null, sourceNode = null, vizRaf = null, dataArray = null;
 
-  const fmt = s => {
-    const m = Math.floor(s / 60), sec = Math.floor(s % 60);
-    return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
-  };
+  const fmt = s => String(Math.floor(s/60)).padStart(2,'0') + ':' + String(Math.floor(s%60)).padStart(2,'0');
 
   function revokeURL() {
     if (currentURL) { URL.revokeObjectURL(currentURL); currentURL = null; }
@@ -472,16 +439,13 @@
   }
 
   function setError(msg) {
-    errorMsg.textContent = msg;
-    errorMsg.classList.add('show');
+    errorMsg.textContent = msg; errorMsg.classList.add('show');
     setTimeout(() => errorMsg.classList.remove('show'), 4000);
   }
 
   function setWaveMode(mode) {
     waveformEl.className = 'waveform ' + mode;
-    if (mode === 'idle' || mode === 'finished') {
-      bars.forEach(b => { b.style.height = '3px'; });
-    }
+    if (mode === 'idle' || mode === 'finished') bars.forEach(b => b.style.height = '3px');
   }
 
   function startViz() {
@@ -489,19 +453,17 @@
     const draw = () => {
       vizRaf = requestAnimationFrame(draw);
       analyser.getByteFrequencyData(dataArray);
-      const bucket = Math.floor(dataArray.length / BAR_COUNT);
+      const bk = Math.floor(dataArray.length / BAR_COUNT);
       for (let i = 0; i < BAR_COUNT; i++) {
         let s = 0;
-        for (let j = 0; j < bucket; j++) s += dataArray[i * bucket + j];
-        const h = Math.max(3, (s / bucket / 255) * 46);
-        bars[i].style.height = h + 'px';
+        for (let j = 0; j < bk; j++) s += dataArray[i*bk+j];
+        bars[i].style.height = Math.max(3, (s/bk/255)*46) + 'px';
       }
     };
     draw();
   }
   function stopViz() { if (vizRaf) { cancelAnimationFrame(vizRaf); vizRaf = null; } }
 
-  /* ── RECORD ── */
   async function startRecording() {
     try {
       revokeURL(); audioChunks = [];
@@ -513,12 +475,9 @@
       sourceNode = audioCtx.createMediaStreamSource(stream);
       sourceNode.connect(analyser);
 
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
-          ? 'audio/ogg;codecs=opus' : 'audio/webm';
-
-      mediaRecorder = new MediaRecorder(stream, { mimeType });
+      const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus') ? 'audio/ogg;codecs=opus' : 'audio/webm';
+      mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
       mediaRecorder.onstop = onRecordStop;
       mediaRecorder.start(100);
@@ -547,21 +506,15 @@
   function onRecordStop() {
     currentBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
     audioChunks = [];
-    currentURL  = URL.createObjectURL(currentBlob);
+    currentURL = URL.createObjectURL(currentBlob);
     audioEl.src = currentURL; audioEl.load();
     audioEl.oncanplaythrough = () => {
       audioEl.oncanplaythrough = null;
-      showPlayback(); autoPlay();
+      timeTot.textContent = fmt(audioEl.duration || 0);
+      playbackCard.classList.add('visible');
+      audioEl.play().catch(console.warn);
     };
   }
-
-  /* ── PLAYBACK ── */
-  function showPlayback() {
-    timeTot.textContent = fmt(audioEl.duration || 0);
-    playbackCard.classList.add('visible');
-  }
-
-  function autoPlay() { audioEl.play().catch(console.warn); }
 
   audioEl.onplay = () => { setState(S.PLAYING); setWaveMode('playing'); updatePlayPill(); };
   audioEl.onpause = audioEl.onended = () => {
@@ -591,44 +544,51 @@
 
   playPill.addEventListener('click', () => {
     if (!currentURL) return;
-    if (state === S.PLAYING) { audioEl.pause(); }
+    if (state === S.PLAYING) audioEl.pause();
     else { audioEl.currentTime = audioEl.ended ? 0 : audioEl.currentTime; audioEl.play().catch(console.warn); }
   });
 
-  /* ── PROGRESS DRAG ── */
+  /* progress drag */
   let dragging = false;
   function seekX(x) {
     const rect = progressTrack.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
     audioEl.currentTime = pct * (audioEl.duration || 0);
-    progressFill.style.width = (pct*100) + '%'; progressThumb.style.left = (pct*100) + '%';
+    progressFill.style.width = (pct*100)+'%'; progressThumb.style.left = (pct*100)+'%';
     timeNow.textContent = fmt(audioEl.currentTime);
   }
-  progressTrack.addEventListener('pointerdown', e => { if (!currentURL) return; dragging = true; progressTrack.setPointerCapture(e.pointerId); seekX(e.clientX); });
+  progressTrack.addEventListener('pointerdown', e => { if (!currentURL) return; dragging=true; progressTrack.setPointerCapture(e.pointerId); seekX(e.clientX); });
   progressTrack.addEventListener('pointermove', e => { if (dragging) seekX(e.clientX); });
   progressTrack.addEventListener('pointerup', () => { dragging = false; });
 
-  /* ── STATE ── */
   function setState(s) {
     state = s;
-    const labels = { idle:'Tap mic to start', recording:'Recording...', playing:'Playing...', finished:'Finished' };
+    const labels = { idle:'Ready', recording:'Recording...', playing:'Playing...', finished:'Finished' };
     statusLabel.textContent = labels[s];
     statusLabel.className = 'status-label ' + (s !== S.IDLE ? s : '');
 
-    // mic button appearance
+    // circle display
     if (s === S.RECORDING) {
-      micBtn.classList.add('recording');
-      micRing.classList.add('recording');
+      micFace.classList.add('recording'); micFace.classList.remove('playing');
+      micRing.classList.add('recording'); micRing.classList.remove('playing');
+    } else if (s === S.PLAYING) {
+      micFace.classList.remove('recording'); micFace.classList.add('playing');
+      micRing.classList.remove('recording'); micRing.classList.add('playing');
     } else {
-      micBtn.classList.remove('recording');
-      micRing.classList.remove('recording');
-      if (s === S.PLAYING) micRing.classList.add('playing');
-      else micRing.classList.remove('playing');
+      micFace.classList.remove('recording','playing');
+      micRing.classList.remove('recording','playing');
     }
 
-    // stop button below
-    if (s === S.RECORDING) { stopBtn.classList.add('visible'); }
-    else { stopBtn.classList.remove('visible'); }
+    // main button (always visible, just changes label/color)
+    if (s === S.RECORDING) {
+      mainBtn.className = 'main-btn state-recording';
+      mainBtnIcon.textContent = '■';
+      mainBtnLabel.textContent = 'Stop Recording';
+    } else {
+      mainBtn.className = 'main-btn state-idle';
+      mainBtnIcon.textContent = '🎤';
+      mainBtnLabel.textContent = s === S.FINISHED || s === S.PLAYING ? 'New Recording' : 'Start Recording';
+    }
 
     if (s === S.IDLE) {
       timerDisplay.textContent = '00:00';
@@ -637,21 +597,15 @@
     updatePlayPill();
   }
 
-  /* ── MIC BUTTON: start recording ── */
-  micBtn.addEventListener('click', () => {
-    if (state === S.IDLE || state === S.FINISHED || state === S.PLAYING) {
+  mainBtn.addEventListener('click', () => {
+    if (state === S.RECORDING) {
+      stopRecording();
+    } else {
       if (state === S.PLAYING || state === S.FINISHED) { audioEl.pause(); audioEl.currentTime = 0; }
       startRecording();
     }
-    // while recording, mic btn does nothing (use stop button below)
   });
 
-  /* ── STOP BUTTON ── */
-  stopBtn.addEventListener('click', () => {
-    if (state === S.RECORDING) stopRecording();
-  });
-
-  /* ── CLEANUP ── */
   window.addEventListener('beforeunload', () => {
     revokeURL();
     if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stream.getTracks().forEach(t => t.stop());
