@@ -314,13 +314,16 @@
       ac = new (window.AudioContext || window.webkitAudioContext)();
       sampleRate = ac.sampleRate;
     }
-    if (ac.state === 'suspended') ac.resume();
+  }
+  function resumeAC() {
+    if (ac && ac.state === 'suspended') return ac.resume();
+    return Promise.resolve();
   }
 
   /* ── RECORDING ── */
   async function startRecording() {
     try {
-      ensureAC();   // warm up now, during user gesture
+      ensureAC();   // create context now during user gesture; keeps it alive through recording+playback
       audioBuffer = null; pcmChunks = []; pausedAt = 0;
 
       micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -384,14 +387,15 @@
     timeTot.textContent = fmt(dur);
     timeNow.textContent = '00:00';
     playbackCard.classList.add('visible');
-    playFromOffset(0);
+    resumeAC().then(() => playFromOffset(0));
   }
 
   /* ── PLAYBACK ── */
-  function playFromOffset(offset) {
+  async function playFromOffset(offset) {
     if (!audioBuffer) return;
     stopSource();
     ensureAC();
+    await resumeAC();   // wait until AudioContext is actually running before start()
 
     sourceNode = ac.createBufferSource();
     sourceNode.buffer = audioBuffer;
