@@ -691,9 +691,13 @@
       mainBtnLabel.textContent = s === S.FINISHED || s === S.PLAYING ? 'New Recording' : 'Start Recording';
     }
 
-    if (s === S.IDLE) {
+    if (s === S.IDLE || s === S.RECORDING) {
       timerDisplay.textContent = '00:00';
       playbackCard.classList.remove('visible');
+      progressFill.style.width = '0%';
+      progressThumb.style.left = '0%';
+      timeNow.textContent = '00:00';
+      timeTot.textContent = '00:00';
     }
     updatePlayPill();
   }
