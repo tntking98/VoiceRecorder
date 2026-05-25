@@ -429,6 +429,7 @@
   let mediaRecorder = null, audioChunks = [], currentBlob = null, currentURL = null;
   let timerInterval = null, recSeconds = 0;
   let audioCtx = null, analyser = null, sourceNode = null, vizRaf = null, dataArray = null;
+  let knownDuration = 0;   // manually tracked duration to work around mobile Chrome Infinity bug
 
   const fmt = s => String(Math.floor(s/60)).padStart(2,'0') + ':' + String(Math.floor(s%60)).padStart(2,'0');
 
@@ -463,9 +464,11 @@
   }
   function stopViz() { if (vizRaf) { cancelAnimationFrame(vizRaf); vizRaf = null; } }
 
+  let recStartTime = 0;  // performance.now() when recording started
+
   async function startRecording() {
     try {
-      revokeURL(); audioChunks = [];
+      revokeURL(); audioChunks = []; knownDuration = 0;
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
 
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -481,6 +484,7 @@
       mediaRecorder.onstop = onRecordStop;
       mediaRecorder.start(100);
 
+      recStartTime = performance.now();
       setState(S.RECORDING);
       recSeconds = 0; timerDisplay.textContent = fmt(0);
       timerInterval = setInterval(() => { recSeconds++; timerDisplay.textContent = fmt(recSeconds); }, 1000);
@@ -493,6 +497,7 @@
   }
 
   function stopRecording() {
+    knownDuration = (performance.now() - recStartTime) / 1000;
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();
       mediaRecorder.stream.getTracks().forEach(t => t.stop());
@@ -502,6 +507,12 @@
     setWaveMode('idle');
   }
 
+  function getDur() {
+    // mobile Chrome returns Infinity for Blob URLs — fall back to manually tracked value
+    const d = audioEl.duration;
+    return (d && isFinite(d)) ? d : knownDuration;
+  }
+
   function onRecordStop() {
     currentBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
     audioChunks = [];
@@ -509,20 +520,10 @@
     audioEl.src = currentURL; audioEl.load();
     audioEl.oncanplaythrough = () => {
       audioEl.oncanplaythrough = null;
-      const dur = audioEl.duration;
-      if (dur && isFinite(dur)) {
-        timeTot.textContent = fmt(dur);
-      } else {
-        audioEl.addEventListener('durationchange', function onDur() {
-          if (isFinite(audioEl.duration)) {
-            audioEl.removeEventListener('durationchange', onDur);
-            timeTot.textContent = fmt(audioEl.duration);
-          }
-        });
-      }
+      timeTot.textContent = fmt(getDur());
       timeNow.textContent = '00:00';
       playbackCard.classList.add('visible');
-      startProgressRaf();           // start rAF BEFORE play() so first frame is never missed
+      startProgressRaf();
       audioEl.play().catch(console.warn);
     };
   }
@@ -532,8 +533,8 @@
   function startProgressRaf() {
     stopProgressRaf();              // cancel any existing loop first
     const tick = () => {
-      const dur = audioEl.duration;
-      if (dur && isFinite(dur) && dur > 0) {
+      const dur = getDur();
+      if (dur > 0) {
         const pct = Math.min((audioEl.currentTime / dur) * 100, 100);
         progressFill.style.width = pct + '%';
         progressThumb.style.left = pct + '%';
@@ -555,7 +556,7 @@
     updatePlayPill();
     if (audioEl.ended) {
       progressFill.style.width = '100%'; progressThumb.style.left = '100%';
-      timeNow.textContent = fmt(audioEl.duration || 0);
+      timeNow.textContent = fmt(getDur());
     }
   };
 
@@ -581,8 +582,8 @@
   function seekX(x) {
     const rect = progressTrack.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
-    const dur = audioEl.duration;
-    if (dur && isFinite(dur)) audioEl.currentTime = pct * dur;
+    const dur = getDur();
+    if (dur > 0) audioEl.currentTime = pct * dur;
     progressFill.style.width = (pct*100)+'%'; progressThumb.style.left = (pct*100)+'%';
     timeNow.textContent = fmt(audioEl.currentTime);
   }
