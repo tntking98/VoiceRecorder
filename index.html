@@ -385,8 +385,6 @@
   <div class="error-msg" id="errorMsg"></div>
 </div>
 
-<audio id="audioEl"></audio>
-
 <script>
 (() => {
   const S = { IDLE:'idle', RECORDING:'recording', PLAYING:'playing', FINISHED:'finished' };
@@ -410,7 +408,6 @@
   const mainBtnLabel = document.getElementById('mainBtnLabel');
   const statusLabel  = document.getElementById('statusLabel');
   const errorMsg     = document.getElementById('errorMsg');
-  const audioEl      = document.getElementById('audioEl');
 
   /* ── WAVEFORM BARS ── */
   const BAR_COUNT = 36;
@@ -426,17 +423,12 @@
     bars.push(b);
   }
 
-  let mediaRecorder = null, audioChunks = [], currentBlob = null, currentURL = null;
+  let mediaRecorder = null, audioChunks = [];
   let timerInterval = null, recSeconds = 0;
   let audioCtx = null, analyser = null, sourceNode = null, vizRaf = null, dataArray = null;
-  let knownDuration = 0;   // manually tracked duration to work around mobile Chrome Infinity bug
+  let knownDuration = 0;
 
   const fmt = s => String(Math.floor(s/60)).padStart(2,'0') + ':' + String(Math.floor(s%60)).padStart(2,'0');
-
-  function revokeURL() {
-    if (currentURL) { URL.revokeObjectURL(currentURL); currentURL = null; }
-    currentBlob = null; audioEl.src = '';
-  }
 
   function setError(msg) {
     errorMsg.textContent = msg; errorMsg.classList.add('show');
@@ -468,8 +460,7 @@
 
   async function startRecording() {
     try {
-      revokeURL(); audioChunks = []; knownDuration = 0;
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      audioChunks = []; knownDuration = 0;      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
 
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       analyser = audioCtx.createAnalyser(); analyser.fftSize = 256;
@@ -507,39 +498,124 @@
     setWaveMode('idle');
   }
 
-  function getDur() {
-    // mobile Chrome returns Infinity for Blob URLs — fall back to manually tracked value
-    const d = audioEl.duration;
-    return (d && isFinite(d)) ? d : knownDuration;
+  // ── WEB AUDIO PLAYBACK (replaces <audio> element entirely) ──────────────
+  // Blob → ArrayBuffer → AudioBuffer (fully decoded at record-stop time).
+  // AudioBufferSourceNode starts instantly with zero buffering delay.
+
+  let playCtx      = null;   // AudioContext for playback
+  let audioBuffer  = null;   // fully decoded PCM buffer
+  let sourceNode2  = null;   // current AudioBufferSourceNode
+  let playStartAt  = 0;      // playCtx.currentTime when playback started
+  let pausedAt     = 0;      // offset in buffer where we paused
+  let isPlaying    = false;
+
+  function getDur() { return audioBuffer ? audioBuffer.duration : knownDuration; }
+
+  function ensurePlayCtx() {
+    if (!playCtx || playCtx.state === 'closed') {
+      playCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    // resume if suspended (mobile requires user-gesture unlock)
+    if (playCtx.state === 'suspended') playCtx.resume();
   }
 
   function onRecordStop() {
     currentBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
     audioChunks = [];
-    currentURL = URL.createObjectURL(currentBlob);
-    audioEl.src = currentURL; audioEl.load();
-    audioEl.oncanplaythrough = () => {
-      audioEl.oncanplaythrough = null;
-      timeTot.textContent = fmt(getDur());
-      timeNow.textContent = '00:00';
-      playbackCard.classList.add('visible');
-      startProgressRaf();
-      audioEl.play().catch(console.warn);
+
+    // decode fully — so first play is instant
+    const fileReader = new FileReader();
+    fileReader.onloadend = () => {
+      ensurePlayCtx();
+      playCtx.decodeAudioData(fileReader.result.slice(0), (buf) => {
+        audioBuffer = buf;
+        knownDuration = buf.duration;
+        pausedAt = 0;
+        timeTot.textContent = fmt(buf.duration);
+        timeNow.textContent = '00:00';
+        playbackCard.classList.add('visible');
+        startAudioBuffer(0);   // play immediately
+      }, (err) => {
+        console.error('decodeAudioData failed', err);
+        setError('Could not decode audio. Please try again.');
+      });
     };
+    fileReader.readAsArrayBuffer(currentBlob);
   }
 
+  function startAudioBuffer(offset) {
+    if (!audioBuffer || !playCtx) return;
+    stopAudioBuffer();
+    ensurePlayCtx();
+
+    sourceNode2 = playCtx.createBufferSource();
+    sourceNode2.buffer = audioBuffer;
+    sourceNode2.connect(playCtx.destination);
+    sourceNode2.onended = () => {
+      if (!isPlaying) return;  // stopped manually
+      isPlaying = false;
+      pausedAt = 0;
+      onPlaybackEnded();
+    };
+
+    playStartAt = playCtx.currentTime - offset;
+    sourceNode2.start(0, offset);
+    isPlaying = true;
+
+    setState(S.PLAYING);
+    setWaveMode('playing');
+    updatePlayPill();
+    startProgressRaf();
+  }
+
+  function stopAudioBuffer() {
+    if (sourceNode2) {
+      sourceNode2.onended = null;
+      try { sourceNode2.stop(); } catch(e) {}
+      sourceNode2.disconnect();
+      sourceNode2 = null;
+    }
+    isPlaying = false;
+    stopProgressRaf();
+  }
+
+  function pauseAudioBuffer() {
+    if (!isPlaying) return;
+    pausedAt = playCtx.currentTime - playStartAt;
+    stopAudioBuffer();
+    setState(S.FINISHED);
+    setWaveMode('finished');
+    updatePlayPill();
+  }
+
+  function onPlaybackEnded() {
+    stopProgressRaf();
+    setState(S.FINISHED);
+    setWaveMode('finished');
+    updatePlayPill();
+    progressFill.style.width = '100%';
+    progressThumb.style.left = '100%';
+    timeNow.textContent = fmt(getDur());
+  }
+
+  function getPlaybackTime() {
+    if (!playCtx) return pausedAt;
+    if (isPlaying) return playCtx.currentTime - playStartAt;
+    return pausedAt;
+  }
+
+  // ── PROGRESS RAF ─────────────────────────────────────────────────────────
   let progressRaf = null;
 
   function startProgressRaf() {
-    stopProgressRaf();              // cancel any existing loop first
+    stopProgressRaf();
+    const dur = getDur();
     const tick = () => {
-      const dur = getDur();
-      if (dur > 0) {
-        const pct = Math.min((audioEl.currentTime / dur) * 100, 100);
-        progressFill.style.width = pct + '%';
-        progressThumb.style.left = pct + '%';
-        timeNow.textContent = fmt(audioEl.currentTime);
-      }
+      const cur = getPlaybackTime();
+      const pct = Math.min((cur / dur) * 100, 100);
+      progressFill.style.width = pct + '%';
+      progressThumb.style.left = pct + '%';
+      timeNow.textContent = fmt(cur);
       progressRaf = requestAnimationFrame(tick);
     };
     progressRaf = requestAnimationFrame(tick);
@@ -548,17 +624,6 @@
   function stopProgressRaf() {
     if (progressRaf) { cancelAnimationFrame(progressRaf); progressRaf = null; }
   }
-
-  audioEl.onplay = () => { setState(S.PLAYING); setWaveMode('playing'); updatePlayPill(); startProgressRaf(); };
-  audioEl.onpause = audioEl.onended = () => {
-    stopProgressRaf();
-    if (state === S.PLAYING) { setState(S.FINISHED); setWaveMode('finished'); }
-    updatePlayPill();
-    if (audioEl.ended) {
-      progressFill.style.width = '100%'; progressThumb.style.left = '100%';
-      timeNow.textContent = fmt(getDur());
-    }
-  };
 
   function updatePlayPill() {
     if (state === S.PLAYING) {
@@ -572,22 +637,28 @@
   }
 
   playPill.addEventListener('click', () => {
-    if (!currentURL) return;
-    if (state === S.PLAYING) audioEl.pause();
-    else { audioEl.currentTime = audioEl.ended ? 0 : audioEl.currentTime; audioEl.play().catch(console.warn); }
+    if (!audioBuffer) return;
+    if (state === S.PLAYING) {
+      pauseAudioBuffer();
+    } else {
+      const offset = (state === S.FINISHED && pausedAt === 0) ? 0 : pausedAt;
+      startAudioBuffer(offset);
+    }
   });
 
-  /* progress drag */
+  // ── PROGRESS DRAG ────────────────────────────────────────────────────────
   let dragging = false;
   function seekX(x) {
     const rect = progressTrack.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
-    const dur = getDur();
-    if (dur > 0) audioEl.currentTime = pct * dur;
-    progressFill.style.width = (pct*100)+'%'; progressThumb.style.left = (pct*100)+'%';
-    timeNow.textContent = fmt(audioEl.currentTime);
+    const pct  = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
+    const dur  = getDur();
+    pausedAt   = pct * dur;
+    progressFill.style.width = (pct*100)+'%';
+    progressThumb.style.left = (pct*100)+'%';
+    timeNow.textContent = fmt(pausedAt);
+    if (isPlaying) startAudioBuffer(pausedAt);
   }
-  progressTrack.addEventListener('pointerdown', e => { if (!currentURL) return; dragging=true; progressTrack.setPointerCapture(e.pointerId); seekX(e.clientX); });
+  progressTrack.addEventListener('pointerdown', e => { if (!audioBuffer) return; dragging=true; progressTrack.setPointerCapture(e.pointerId); seekX(e.clientX); });
   progressTrack.addEventListener('pointermove', e => { if (dragging) seekX(e.clientX); });
   progressTrack.addEventListener('pointerup', () => { dragging = false; });
 
@@ -631,15 +702,19 @@
     if (state === S.RECORDING) {
       stopRecording();
     } else {
-      if (state === S.PLAYING || state === S.FINISHED) { audioEl.pause(); audioEl.currentTime = 0; }
+      if (state === S.PLAYING) pauseAudioBuffer();
+      stopAudioBuffer();
+      audioBuffer = null; pausedAt = 0;
       startRecording();
     }
   });
 
   window.addEventListener('beforeunload', () => {
-    revokeURL(); stopProgressRaf();
+    stopProgressRaf(); stopAudioBuffer();
+    if (currentURL) { URL.revokeObjectURL(currentURL); }
     if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stream.getTracks().forEach(t => t.stop());
     if (audioCtx) audioCtx.close();
+    if (playCtx) playCtx.close();
   });
 
   setState(S.IDLE);
