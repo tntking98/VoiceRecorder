@@ -460,7 +460,12 @@
 
   async function startRecording() {
     try {
-      audioChunks = []; knownDuration = 0;      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      audioChunks = []; knownDuration = 0; audioBuffer = null;
+
+      // Warm up playCtx NOW while we have a user gesture — avoids cold-start on first play
+      ensurePlayCtx();
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
 
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       analyser = audioCtx.createAnalyser(); analyser.fftSize = 256;
@@ -490,6 +495,8 @@
   function stopRecording() {
     knownDuration = (performance.now() - recStartTime) / 1000;
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      // requestData flushes the last chunk synchronously before stop
+      mediaRecorder.requestData();
       mediaRecorder.stop();
       mediaRecorder.stream.getTracks().forEach(t => t.stop());
     }
@@ -520,27 +527,26 @@
   }
 
   function onRecordStop() {
-    currentBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+    const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
     audioChunks = [];
 
-    // decode fully — so first play is instant
-    const fileReader = new FileReader();
-    fileReader.onloadend = () => {
-      ensurePlayCtx();
-      playCtx.decodeAudioData(fileReader.result.slice(0), (buf) => {
-        audioBuffer = buf;
-        knownDuration = buf.duration;
-        pausedAt = 0;
-        timeTot.textContent = fmt(buf.duration);
-        timeNow.textContent = '00:00';
-        playbackCard.classList.add('visible');
-        startAudioBuffer(0);   // play immediately
-      }, (err) => {
-        console.error('decodeAudioData failed', err);
-        setError('Could not decode audio. Please try again.');
-      });
-    };
-    fileReader.readAsArrayBuffer(currentBlob);
+    ensurePlayCtx();
+
+    // Show card immediately so user sees feedback — times update when decode finishes
+    timeTot.textContent = fmt(knownDuration);
+    timeNow.textContent = '00:00';
+    playbackCard.classList.add('visible');
+
+    blob.arrayBuffer().then(ab => playCtx.decodeAudioData(ab)).then(buf => {
+      audioBuffer   = buf;
+      knownDuration = buf.duration;
+      pausedAt      = 0;
+      timeTot.textContent = fmt(buf.duration);
+      startAudioBuffer(0);
+    }).catch(err => {
+      console.error('decodeAudioData failed', err);
+      setError('Could not decode audio. Please try again.');
+    });
   }
 
   function startAudioBuffer(offset) {
