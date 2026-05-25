@@ -509,25 +509,53 @@
     audioEl.src = currentURL; audioEl.load();
     audioEl.oncanplaythrough = () => {
       audioEl.oncanplaythrough = null;
-      timeTot.textContent = fmt(audioEl.duration || 0);
+      const dur = audioEl.duration;
+      if (dur && isFinite(dur)) {
+        timeTot.textContent = fmt(dur);
+      } else {
+        audioEl.addEventListener('durationchange', function onDur() {
+          if (isFinite(audioEl.duration)) {
+            audioEl.removeEventListener('durationchange', onDur);
+            timeTot.textContent = fmt(audioEl.duration);
+          }
+        });
+      }
+      timeNow.textContent = '00:00';
       playbackCard.classList.add('visible');
       audioEl.play().catch(console.warn);
     };
   }
 
-  audioEl.onplay = () => { setState(S.PLAYING); setWaveMode('playing'); updatePlayPill(); };
+  let progressRaf = null;
+
+  function startProgressRaf() {
+    if (progressRaf) return;
+    const tick = () => {
+      const dur = audioEl.duration;
+      if (dur && isFinite(dur) && dur > 0) {
+        const pct = Math.min((audioEl.currentTime / dur) * 100, 100);
+        progressFill.style.width = pct + '%';
+        progressThumb.style.left = pct + '%';
+        timeNow.textContent = fmt(audioEl.currentTime);
+      }
+      progressRaf = requestAnimationFrame(tick);
+    };
+    progressRaf = requestAnimationFrame(tick);
+  }
+
+  function stopProgressRaf() {
+    if (progressRaf) { cancelAnimationFrame(progressRaf); progressRaf = null; }
+  }
+
+  audioEl.onplay = () => { setState(S.PLAYING); setWaveMode('playing'); updatePlayPill(); startProgressRaf(); };
   audioEl.onpause = audioEl.onended = () => {
+    stopProgressRaf();
     if (state === S.PLAYING) { setState(S.FINISHED); setWaveMode('finished'); }
     updatePlayPill();
     if (audioEl.ended) {
       progressFill.style.width = '100%'; progressThumb.style.left = '100%';
-      timeNow.textContent = timeTot.textContent;
+      timeNow.textContent = fmt(audioEl.duration || 0);
     }
-  };
-  audioEl.ontimeupdate = () => {
-    const pct = Math.min((audioEl.currentTime / (audioEl.duration || 1)) * 100, 100);
-    progressFill.style.width = pct + '%'; progressThumb.style.left = pct + '%';
-    timeNow.textContent = fmt(audioEl.currentTime);
   };
 
   function updatePlayPill() {
@@ -552,7 +580,8 @@
   function seekX(x) {
     const rect = progressTrack.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
-    audioEl.currentTime = pct * (audioEl.duration || 0);
+    const dur = audioEl.duration;
+    if (dur && isFinite(dur)) audioEl.currentTime = pct * dur;
     progressFill.style.width = (pct*100)+'%'; progressThumb.style.left = (pct*100)+'%';
     timeNow.textContent = fmt(audioEl.currentTime);
   }
@@ -606,7 +635,7 @@
   });
 
   window.addEventListener('beforeunload', () => {
-    revokeURL();
+    revokeURL(); stopProgressRaf();
     if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stream.getTracks().forEach(t => t.stop());
     if (audioCtx) audioCtx.close();
   });
