@@ -283,22 +283,19 @@
 
   /* ══════════════════════════════════════════════════════════════════
      AUDIO ENGINE
-     Strategy: capture raw PCM via ScriptProcessorNode during recording.
-     On stop, assemble Float32Array directly into an AudioBuffer.
-     Zero decoding step → zero first-play delay.
   ══════════════════════════════════════════════════════════════════ */
 
-  let ac           = null;   // single shared AudioContext (created on first user gesture)
+  let ac           = null;   
   let micStream    = null;
   let micSource    = null;
   let analyserNode = null;
   let processor    = null;
-  let pcmChunks    = [];     // Float32Array chunks collected during recording
+  let pcmChunks    = [];     
   let sampleRate   = 44100;
 
-  let audioBuffer  = null;   // finished PCM as AudioBuffer — ready to play instantly
-  let sourceNode   = null;   // AudioBufferSourceNode currently playing
-  let playStartAt  = 0;      // ac.currentTime when play started
+  let audioBuffer  = null;   
+  let sourceNode   = null;   
+  let playStartAt  = 0;      
   let pausedAt     = 0;
   let isPlaying    = false;
 
@@ -308,7 +305,6 @@
   let timerInterval = null;
   let recSeconds    = 0;
 
-  /* One AudioContext for everything — created during the first button tap (user gesture) */
   function ensureAC() {
     if (!ac || ac.state === 'closed') {
       ac = new (window.AudioContext || window.webkitAudioContext)();
@@ -320,10 +316,20 @@
     return Promise.resolve();
   }
 
+  /* 마이크 자원을 안전하게 해제하는 별도 헬퍼 함수 정의 */
+  function closeMicStream() {
+    if (micStream) {
+      micStream.getTracks().forEach(t => t.stop());
+      micStream = null;
+    }
+  }
+
   /* ── RECORDING ── */
   async function startRecording() {
     try {
-      ensureAC();   // create context now during user gesture; keeps it alive through recording+playback
+      closeMicStream(); // 이전 스트림 완전 초기화
+      ensureAC();   
+      await resumeAC(); // 컨텍스트를 확실히 활성화 상태로 두고 녹음 진입
       audioBuffer = null; pcmChunks = []; pausedAt = 0;
 
       micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -334,17 +340,15 @@
       analyserNode.fftSize = 256;
       dataArray    = new Uint8Array(analyserNode.frequencyBinCount);
 
-      // ScriptProcessorNode: captures raw PCM, mono, at native sample rate
       const BUF = 4096;
       processor  = ac.createScriptProcessor(BUF, 1, 1);
       processor.onaudioprocess = e => {
-        // copy — the buffer is reused by the browser
         pcmChunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
       };
 
       micSource.connect(analyserNode);
       analyserNode.connect(processor);
-      processor.connect(ac.destination);   // must be connected to run
+      processor.connect(ac.destination);   
 
       recSeconds = 0;
       timerDisplay.textContent = fmt(0);
@@ -360,19 +364,18 @@
   }
 
   function stopRecording() {
-    // disconnect first so onaudioprocess stops firing
     if (processor)    { processor.disconnect();    processor.onaudioprocess = null; processor = null; }
     if (analyserNode) { analyserNode.disconnect(); }
     if (micSource)    { micSource.disconnect(); }
-    if (micStream)    { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+    
+    // [핵심 변경] 하드웨어 무음 지연을 막기 위해 여기서 마이크 스트림을 즉시 stop()하지 않습니다!
 
     clearInterval(timerInterval);
     stopViz();
     setWaveMode('idle');
 
-    // Assemble PCM chunks → AudioBuffer — synchronous, instant
     const totalLen = pcmChunks.reduce((s, c) => s + c.length, 0);
-    if (totalLen === 0) { setState(S.IDLE); return; }
+    if (totalLen === 0) { setState(S.IDLE); closeMicStream(); return; }
 
     const combined = new Float32Array(totalLen);
     let offset = 0;
@@ -382,7 +385,6 @@
     audioBuffer = ac.createBuffer(1, combined.length, sampleRate);
     audioBuffer.copyToChannel(combined, 0);
 
-    // Ready to play — zero delay
     const dur = audioBuffer.duration;
     timeTot.textContent = fmt(dur);
     timeNow.textContent = '00:00';
@@ -395,7 +397,7 @@
     if (!audioBuffer) return;
     stopSource();
     ensureAC();
-    await resumeAC();   // wait until AudioContext is actually running before start()
+    await resumeAC();   
 
     sourceNode = ac.createBufferSource();
     sourceNode.buffer = audioBuffer;
@@ -408,10 +410,12 @@
       progressFill.style.width = '100%';
       progressThumb.style.left = '100%';
       timeNow.textContent = fmt(audioBuffer.duration);
+      
+      closeMicStream(); // [추가] 듣기가 완전히 끝나는 시점에 하드웨어 마이크를 안전하게 종료
     };
 
     playStartAt = ac.currentTime - offset;
-    sourceNode.start(0, offset);
+    sourceNode.start(ac.currentTime, offset); // 정확한 하드웨어 타임라인 동기화 유도
     isPlaying = true;
 
     setState(S.PLAYING); setWaveMode('playing'); updatePlayPill();
@@ -434,6 +438,8 @@
     pausedAt = ac.currentTime - playStartAt;
     stopSource();
     setState(S.FINISHED); setWaveMode('finished'); updatePlayPill();
+    
+    closeMicStream(); // [추가] 사용자가 중간에 재생을 멈췄으므로 마이크 자원 반환
   }
 
   function getPlaybackTime() {
@@ -553,13 +559,14 @@
       stopRecording();
     } else {
       stopSource(); audioBuffer = null; pausedAt = 0;
+      closeMicStream(); // 새 녹음 시작 전 명시적 완전 종료
       startRecording();
     }
   });
 
   window.addEventListener('beforeunload', () => {
     stopSource(); stopViz(); stopProgressRaf();
-    if (micStream) micStream.getTracks().forEach(t => t.stop());
+    closeMicStream();
     if (ac) ac.close();
   });
 
