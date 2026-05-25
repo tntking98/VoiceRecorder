@@ -17,7 +17,6 @@
     --mint:       #6dcfb8;
     --mint-light: #e2f7f3;
     --mint-dark:  #4bb8a0;
-    --gray:       #b0bec5;
     --gray-light: #eceff1;
     --text:       #37474f;
     --text-sub:   #90a4ae;
@@ -44,16 +43,9 @@
     min-height: 100dvh;
   }
 
-  /* ── HEADER ── */
   .header { width: 100%; text-align: center; }
-  .app-title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: 0.02em;
-  }
+  .app-title { font-size: 1.15rem; font-weight: 700; color: var(--text); letter-spacing: 0.02em; }
 
-  /* ── CENTER STAGE ── */
   .stage {
     flex: 1;
     display: flex;
@@ -64,271 +56,131 @@
     width: 100%;
   }
 
-  /* ── MIC DISPLAY (NOT a button) ── */
-  .mic-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  .mic-wrap { display: flex; align-items: center; justify-content: center; }
 
   .mic-ring {
-    width: 210px;
-    height: 210px;
-    border-radius: 50%;
+    width: 210px; height: 210px; border-radius: 50%;
     background: var(--mint-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     transition: background 0.35s ease;
   }
-  .mic-ring.recording {
-    background: var(--red-light);
-    animation: ring-pulse 1.4s ease-in-out infinite;
-  }
-  .mic-ring.playing { background: var(--mint-light); }
-
-  @keyframes ring-pulse {
-    0%,100% { transform: scale(1); }
-    50%      { transform: scale(1.05); }
-  }
+  .mic-ring.recording { background: var(--red-light); animation: ring-pulse 1.4s ease-in-out infinite; }
+  .mic-ring.playing   { background: var(--mint-light); }
+  @keyframes ring-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
 
   .mic-face {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 150px; height: 150px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
     background: var(--mint);
     box-shadow: 0 8px 28px rgba(109,207,184,0.45);
     transition: background 0.3s ease, box-shadow 0.3s ease;
     pointer-events: none;
   }
-  .mic-face.recording {
-    background: var(--red);
-    box-shadow: 0 8px 32px rgba(240,92,110,0.5);
-  }
-  .mic-face.playing { background: var(--mint); }
+  .mic-face.recording { background: var(--red); box-shadow: 0 8px 32px rgba(240,92,110,0.5); }
 
   .mic-icon {
-    width: 58px;
-    height: 58px;
-    fill: none;
-    stroke: #fff;
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    display: block;
+    width: 58px; height: 58px; fill: none;
+    stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; display: block;
   }
-  .pause-icon {
-    display: none;
-    width: 36px;
-    height: 36px;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .pause-icon span {
-    display: block;
-    width: 10px;
-    height: 34px;
-    background: #fff;
-    border-radius: 4px;
-  }
-  .mic-face.recording .mic-icon  { display: none; }
+  .pause-icon { display: none; width: 36px; height: 36px; align-items: center; justify-content: center; gap: 8px; }
+  .pause-icon span { display: block; width: 10px; height: 34px; background: #fff; border-radius: 4px; }
+  .mic-face.recording .mic-icon   { display: none; }
   .mic-face.recording .pause-icon { display: flex; }
 
-  /* ── TIMER ── */
   .timer {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: 0.06em;
-    font-variant-numeric: tabular-nums;
+    font-size: 2rem; font-weight: 700; color: var(--text);
+    letter-spacing: 0.06em; font-variant-numeric: tabular-nums;
   }
 
-  /* ── WAVEFORM ── */
   .waveform {
-    width: 100%;
-    max-width: 320px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
+    width: 100%; max-width: 320px; height: 52px;
+    display: flex; align-items: center; justify-content: center; gap: 3px;
   }
-  .wave-bar {
-    width: 3.5px;
-    border-radius: 2px;
-    background: var(--gray-light);
-    height: 3px;
-    flex-shrink: 0;
-  }
-  .waveform.recording .wave-bar {
-    background: var(--red);
-    animation: wbar 0.5s ease-in-out infinite alternate;
-  }
-  .waveform.playing .wave-bar {
-    background: var(--mint);
-    animation: wbar 0.65s ease-in-out infinite alternate;
-  }
-  @keyframes wbar {
-    from { height: var(--min-h, 3px); }
-    to   { height: var(--max-h, 36px); }
-  }
+  .wave-bar { width: 3.5px; border-radius: 2px; background: var(--gray-light); height: 3px; flex-shrink: 0; }
+  .waveform.recording .wave-bar { background: var(--red);  animation: wbar 0.5s  ease-in-out infinite alternate; }
+  .waveform.playing   .wave-bar { background: var(--mint); animation: wbar 0.65s ease-in-out infinite alternate; }
+  @keyframes wbar { from{height:var(--min-h,3px)} to{height:var(--max-h,36px)} }
 
-  /* ── PLAYBACK CARD ── */
   .playback-card {
-    width: 100%;
-    max-width: 340px;
-    background: var(--white);
-    border-radius: 20px;
+    width: 100%; max-width: 340px;
+    background: var(--white); border-radius: 20px;
     padding: 1.1rem 1.3rem 1rem;
     box-shadow: 0 4px 20px var(--shadow);
-    opacity: 0;
-    transform: translateY(12px);
+    opacity: 0; transform: translateY(12px);
     transition: opacity 0.35s ease, transform 0.35s ease;
     pointer-events: none;
   }
-  .playback-card.visible {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
+  .playback-card.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
   .progress-track {
-    width: 100%;
-    height: 5px;
-    background: var(--gray-light);
-    border-radius: 3px;
-    position: relative;
-    cursor: pointer;
-    margin-bottom: 0.5rem;
-    touch-action: none;
+    width: 100%; height: 5px; background: var(--gray-light);
+    border-radius: 3px; position: relative; cursor: pointer;
+    margin-bottom: 0.5rem; touch-action: none;
   }
-  .progress-fill {
-    height: 100%;
-    background: var(--mint);
-    border-radius: 3px;
-    width: 0%;
-    pointer-events: none;
-    transition: width 0.1s linear;
-  }
+  .progress-fill { height: 100%; background: var(--mint); border-radius: 3px; width: 0%; pointer-events: none; }
   .progress-thumb {
-    position: absolute;
-    top: 50%;
-    left: 0%;
-    transform: translate(-50%, -50%);
-    width: 16px;
-    height: 16px;
-    background: var(--mint-dark);
-    border-radius: 50%;
-    border: 3px solid #fff;
-    box-shadow: 0 1px 4px var(--shadow);
+    position: absolute; top: 50%; left: 0%;
+    transform: translate(-50%,-50%);
+    width: 16px; height: 16px;
+    background: var(--mint-dark); border-radius: 50%;
+    border: 3px solid #fff; box-shadow: 0 1px 4px var(--shadow);
     cursor: grab;
-    transition: left 0.1s linear;
   }
   .progress-thumb:active { cursor: grabbing; }
 
   .progress-times {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: var(--text-sub);
-    font-weight: 600;
-    margin-bottom: 0.55rem;
+    display: flex; justify-content: space-between;
+    font-size: 0.75rem; color: var(--text-sub); font-weight: 600; margin-bottom: 0.55rem;
   }
 
   .play-pill {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    gap: 0.5rem;
-    width: 140px;
-    padding: 0.75rem 0;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    background: var(--mint-light);
-    color: var(--mint-dark);
-    font-family: var(--font);
-    font-weight: 700;
-    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto; gap: 0.5rem;
+    width: 140px; padding: 0.75rem 0; border-radius: 999px; border: none; cursor: pointer;
+    background: var(--mint-light); color: var(--mint-dark);
+    font-family: var(--font); font-weight: 700; font-size: 1rem;
     transition: background 0.2s, transform 0.15s;
   }
   .play-pill:active { transform: scale(0.95); }
   .play-pill.stop-mode { background: var(--red-light); color: var(--red-dark); }
 
-  /* ── BOTTOM AREA ── */
   .bottom-wrap {
-    width: 100%;
-    max-width: 360px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
+    width: 100%; max-width: 360px;
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
   }
 
-  /* Always-visible main action button */
   .main-btn {
-    width: 82%;
-    max-width: 300px;
-    padding: 1.2rem 1rem;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    font-family: var(--font);
-    font-size: 1.15rem;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    width: 82%; max-width: 300px; padding: 1.2rem 1rem; border-radius: 999px; border: none;
+    cursor: pointer; font-family: var(--font); font-size: 1.15rem; font-weight: 800;
+    letter-spacing: 0.02em; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
     transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.12s ease;
-    -webkit-user-select: none;
-    user-select: none;
+    -webkit-user-select: none; user-select: none;
   }
   .main-btn.state-idle {
-    background: var(--mint);
-    color: #fff;
+    background: var(--mint); color: #fff;
     box-shadow: 0 6px 22px rgba(109,207,184,0.45);
   }
   .main-btn.state-recording {
-    background: var(--red);
-    color: #fff;
+    background: var(--red); color: #fff;
     box-shadow: 0 6px 22px rgba(240,92,110,0.42);
     animation: btn-pulse 1.4s ease-in-out infinite;
   }
   @keyframes btn-pulse {
-    0%,100% { box-shadow: 0 6px 22px rgba(240,92,110,0.42); }
-    50%      { box-shadow: 0 6px 34px rgba(240,92,110,0.65); }
+    0%,100%{box-shadow:0 6px 22px rgba(240,92,110,0.42)}
+    50%    {box-shadow:0 6px 34px rgba(240,92,110,0.65)}
   }
   .main-btn:active { transform: scale(0.96); }
 
   .status-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-sub);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    transition: color 0.3s;
+    font-size: 0.8rem; font-weight: 600; color: var(--text-sub);
+    letter-spacing: 0.04em; text-transform: uppercase; transition: color 0.3s;
   }
   .status-label.recording { color: var(--red); }
   .status-label.playing   { color: var(--mint-dark); }
   .status-label.finished  { color: var(--mint-dark); }
 
-  .error-msg {
-    font-size: 0.75rem;
-    color: var(--red);
-    text-align: center;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
+  .error-msg { font-size: 0.75rem; color: var(--red); text-align: center; opacity: 0; transition: opacity 0.3s; }
   .error-msg.show { opacity: 1; }
-
-  #audioEl { display: none; }
 </style>
 </head>
 <body>
@@ -338,8 +190,6 @@
 </header>
 
 <main class="stage">
-
-  <!-- display-only circle, NOT a button -->
   <div class="mic-wrap">
     <div class="mic-ring" id="micRing">
       <div class="mic-face" id="micFace">
@@ -355,7 +205,6 @@
   </div>
 
   <div class="timer" id="timerDisplay">00:00</div>
-
   <div class="waveform" id="waveform"></div>
 
   <div class="playback-card" id="playbackCard">
@@ -372,10 +221,8 @@
       <span id="playPillLabel">Play</span>
     </button>
   </div>
-
 </main>
 
-<!-- ALWAYS VISIBLE bottom button -->
 <div class="bottom-wrap">
   <button class="main-btn state-idle" id="mainBtn">
     <span id="mainBtnIcon">🎤</span>
@@ -390,24 +237,24 @@
   const S = { IDLE:'idle', RECORDING:'recording', PLAYING:'playing', FINISHED:'finished' };
   let state = S.IDLE;
 
-  const micRing      = document.getElementById('micRing');
-  const micFace      = document.getElementById('micFace');
-  const timerDisplay = document.getElementById('timerDisplay');
-  const waveformEl   = document.getElementById('waveform');
-  const playbackCard = document.getElementById('playbackCard');
-  const progressTrack= document.getElementById('progressTrack');
-  const progressFill = document.getElementById('progressFill');
-  const progressThumb= document.getElementById('progressThumb');
-  const timeNow      = document.getElementById('timeNow');
-  const timeTot      = document.getElementById('timeTot');
-  const playPill     = document.getElementById('playPill');
-  const playPillIcon = document.getElementById('playPillIcon');
-  const playPillLabel= document.getElementById('playPillLabel');
-  const mainBtn      = document.getElementById('mainBtn');
-  const mainBtnIcon  = document.getElementById('mainBtnIcon');
-  const mainBtnLabel = document.getElementById('mainBtnLabel');
-  const statusLabel  = document.getElementById('statusLabel');
-  const errorMsg     = document.getElementById('errorMsg');
+  const micRing       = document.getElementById('micRing');
+  const micFace       = document.getElementById('micFace');
+  const timerDisplay  = document.getElementById('timerDisplay');
+  const waveformEl    = document.getElementById('waveform');
+  const playbackCard  = document.getElementById('playbackCard');
+  const progressTrack = document.getElementById('progressTrack');
+  const progressFill  = document.getElementById('progressFill');
+  const progressThumb = document.getElementById('progressThumb');
+  const timeNow       = document.getElementById('timeNow');
+  const timeTot       = document.getElementById('timeTot');
+  const playPill      = document.getElementById('playPill');
+  const playPillIcon  = document.getElementById('playPillIcon');
+  const playPillLabel = document.getElementById('playPillLabel');
+  const mainBtn       = document.getElementById('mainBtn');
+  const mainBtnIcon   = document.getElementById('mainBtnIcon');
+  const mainBtnLabel  = document.getElementById('mainBtnLabel');
+  const statusLabel   = document.getElementById('statusLabel');
+  const errorMsg      = document.getElementById('errorMsg');
 
   /* ── WAVEFORM BARS ── */
   const BAR_COUNT = 36;
@@ -417,16 +264,11 @@
     b.className = 'wave-bar';
     b.style.setProperty('--min-h', (3 + Math.random() * 4) + 'px');
     b.style.setProperty('--max-h', (14 + Math.random() * 28) + 'px');
-    b.style.animationDelay = (i * 0.035 + Math.random() * 0.18) + 's';
+    b.style.animationDelay    = (i * 0.035 + Math.random() * 0.18) + 's';
     b.style.animationDuration = (0.4 + Math.random() * 0.35) + 's';
     waveformEl.appendChild(b);
     bars.push(b);
   }
-
-  let mediaRecorder = null, audioChunks = [];
-  let timerInterval = null, recSeconds = 0;
-  let audioCtx = null, analyser = null, sourceNode = null, vizRaf = null, dataArray = null;
-  let knownDuration = 0;
 
   const fmt = s => String(Math.floor(s/60)).padStart(2,'0') + ':' + String(Math.floor(s%60)).padStart(2,'0');
 
@@ -434,17 +276,192 @@
     errorMsg.textContent = msg; errorMsg.classList.add('show');
     setTimeout(() => errorMsg.classList.remove('show'), 4000);
   }
-
   function setWaveMode(mode) {
     waveformEl.className = 'waveform ' + mode;
     if (mode === 'idle' || mode === 'finished') bars.forEach(b => b.style.height = '3px');
   }
 
+  /* ══════════════════════════════════════════════════════════════════
+     AUDIO ENGINE
+     Strategy: capture raw PCM via ScriptProcessorNode during recording.
+     On stop, assemble Float32Array directly into an AudioBuffer.
+     Zero decoding step → zero first-play delay.
+  ══════════════════════════════════════════════════════════════════ */
+
+  let ac           = null;   // single shared AudioContext (created on first user gesture)
+  let micStream    = null;
+  let micSource    = null;
+  let analyserNode = null;
+  let processor    = null;
+  let pcmChunks    = [];     // Float32Array chunks collected during recording
+  let sampleRate   = 44100;
+
+  let audioBuffer  = null;   // finished PCM as AudioBuffer — ready to play instantly
+  let sourceNode   = null;   // AudioBufferSourceNode currently playing
+  let playStartAt  = 0;      // ac.currentTime when play started
+  let pausedAt     = 0;
+  let isPlaying    = false;
+
+  let vizRaf       = null;
+  let dataArray    = null;
+
+  let timerInterval = null;
+  let recSeconds    = 0;
+
+  /* One AudioContext for everything — created during the first button tap (user gesture) */
+  function ensureAC() {
+    if (!ac || ac.state === 'closed') {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      sampleRate = ac.sampleRate;
+    }
+    if (ac.state === 'suspended') ac.resume();
+  }
+
+  /* ── RECORDING ── */
+  async function startRecording() {
+    try {
+      ensureAC();   // warm up now, during user gesture
+      audioBuffer = null; pcmChunks = []; pausedAt = 0;
+
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      sampleRate = ac.sampleRate;
+
+      micSource    = ac.createMediaStreamSource(micStream);
+      analyserNode = ac.createAnalyser();
+      analyserNode.fftSize = 256;
+      dataArray    = new Uint8Array(analyserNode.frequencyBinCount);
+
+      // ScriptProcessorNode: captures raw PCM, mono, at native sample rate
+      const BUF = 4096;
+      processor  = ac.createScriptProcessor(BUF, 1, 1);
+      processor.onaudioprocess = e => {
+        // copy — the buffer is reused by the browser
+        pcmChunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+      };
+
+      micSource.connect(analyserNode);
+      analyserNode.connect(processor);
+      processor.connect(ac.destination);   // must be connected to run
+
+      recSeconds = 0;
+      timerDisplay.textContent = fmt(0);
+      timerInterval = setInterval(() => { recSeconds++; timerDisplay.textContent = fmt(recSeconds); }, 1000);
+      setState(S.RECORDING);
+      setWaveMode('recording');
+      startViz();
+
+    } catch (err) {
+      console.error(err);
+      setError('Microphone access denied. Please allow mic and try again.');
+    }
+  }
+
+  function stopRecording() {
+    // disconnect first so onaudioprocess stops firing
+    if (processor)    { processor.disconnect();    processor.onaudioprocess = null; processor = null; }
+    if (analyserNode) { analyserNode.disconnect(); }
+    if (micSource)    { micSource.disconnect(); }
+    if (micStream)    { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+
+    clearInterval(timerInterval);
+    stopViz();
+    setWaveMode('idle');
+
+    // Assemble PCM chunks → AudioBuffer — synchronous, instant
+    const totalLen = pcmChunks.reduce((s, c) => s + c.length, 0);
+    if (totalLen === 0) { setState(S.IDLE); return; }
+
+    const combined = new Float32Array(totalLen);
+    let offset = 0;
+    for (const chunk of pcmChunks) { combined.set(chunk, offset); offset += chunk.length; }
+    pcmChunks = [];
+
+    audioBuffer = ac.createBuffer(1, combined.length, sampleRate);
+    audioBuffer.copyToChannel(combined, 0);
+
+    // Ready to play — zero delay
+    const dur = audioBuffer.duration;
+    timeTot.textContent = fmt(dur);
+    timeNow.textContent = '00:00';
+    playbackCard.classList.add('visible');
+    playFromOffset(0);
+  }
+
+  /* ── PLAYBACK ── */
+  function playFromOffset(offset) {
+    if (!audioBuffer) return;
+    stopSource();
+    ensureAC();
+
+    sourceNode = ac.createBufferSource();
+    sourceNode.buffer = audioBuffer;
+    sourceNode.connect(ac.destination);
+    sourceNode.onended = () => {
+      if (!isPlaying) return;
+      isPlaying = false; pausedAt = 0;
+      stopProgressRaf();
+      setState(S.FINISHED); setWaveMode('finished'); updatePlayPill();
+      progressFill.style.width = '100%';
+      progressThumb.style.left = '100%';
+      timeNow.textContent = fmt(audioBuffer.duration);
+    };
+
+    playStartAt = ac.currentTime - offset;
+    sourceNode.start(0, offset);
+    isPlaying = true;
+
+    setState(S.PLAYING); setWaveMode('playing'); updatePlayPill();
+    startProgressRaf();
+  }
+
+  function stopSource() {
+    if (sourceNode) {
+      sourceNode.onended = null;
+      try { sourceNode.stop(); } catch(e) {}
+      sourceNode.disconnect();
+      sourceNode = null;
+    }
+    isPlaying = false;
+    stopProgressRaf();
+  }
+
+  function pausePlayback() {
+    if (!isPlaying) return;
+    pausedAt = ac.currentTime - playStartAt;
+    stopSource();
+    setState(S.FINISHED); setWaveMode('finished'); updatePlayPill();
+  }
+
+  function getPlaybackTime() {
+    if (isPlaying && ac) return ac.currentTime - playStartAt;
+    return pausedAt;
+  }
+
+  /* ── PROGRESS RAF ── */
+  let progressRaf = null;
+  function startProgressRaf() {
+    stopProgressRaf();
+    const dur = audioBuffer ? audioBuffer.duration : 1;
+    const tick = () => {
+      const cur = getPlaybackTime();
+      const pct = Math.min((cur / dur) * 100, 100);
+      progressFill.style.width = pct + '%';
+      progressThumb.style.left = pct + '%';
+      timeNow.textContent = fmt(cur);
+      progressRaf = requestAnimationFrame(tick);
+    };
+    progressRaf = requestAnimationFrame(tick);
+  }
+  function stopProgressRaf() {
+    if (progressRaf) { cancelAnimationFrame(progressRaf); progressRaf = null; }
+  }
+
+  /* ── VIZ ── */
   function startViz() {
-    if (!analyser) return;
+    if (!analyserNode) return;
     const draw = () => {
       vizRaf = requestAnimationFrame(draw);
-      analyser.getByteFrequencyData(dataArray);
+      analyserNode.getByteFrequencyData(dataArray);
       const bk = Math.floor(dataArray.length / BAR_COUNT);
       for (let i = 0; i < BAR_COUNT; i++) {
         let s = 0;
@@ -456,181 +473,7 @@
   }
   function stopViz() { if (vizRaf) { cancelAnimationFrame(vizRaf); vizRaf = null; } }
 
-  let recStartTime = 0;  // performance.now() when recording started
-
-  async function startRecording() {
-    try {
-      audioChunks = []; knownDuration = 0; audioBuffer = null;
-
-      // Warm up playCtx NOW while we have a user gesture — avoids cold-start on first play
-      ensurePlayCtx();
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      analyser = audioCtx.createAnalyser(); analyser.fftSize = 256;
-      dataArray = new Uint8Array(analyser.frequencyBinCount);
-      sourceNode = audioCtx.createMediaStreamSource(stream);
-      sourceNode.connect(analyser);
-
-      const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus') ? 'audio/ogg;codecs=opus' : 'audio/webm';
-      mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
-      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-      mediaRecorder.onstop = onRecordStop;
-      mediaRecorder.start(100);
-
-      recStartTime = performance.now();
-      setState(S.RECORDING);
-      recSeconds = 0; timerDisplay.textContent = fmt(0);
-      timerInterval = setInterval(() => { recSeconds++; timerDisplay.textContent = fmt(recSeconds); }, 1000);
-      setWaveMode('recording'); startViz();
-
-    } catch (err) {
-      console.error(err);
-      setError('Microphone access denied. Please allow mic and try again.');
-    }
-  }
-
-  function stopRecording() {
-    knownDuration = (performance.now() - recStartTime) / 1000;
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-      // requestData flushes the last chunk synchronously before stop
-      mediaRecorder.requestData();
-      mediaRecorder.stop();
-      mediaRecorder.stream.getTracks().forEach(t => t.stop());
-    }
-    clearInterval(timerInterval); stopViz();
-    if (audioCtx) { audioCtx.close(); audioCtx = null; }
-    setWaveMode('idle');
-  }
-
-  // ── WEB AUDIO PLAYBACK (replaces <audio> element entirely) ──────────────
-  // Blob → ArrayBuffer → AudioBuffer (fully decoded at record-stop time).
-  // AudioBufferSourceNode starts instantly with zero buffering delay.
-
-  let playCtx      = null;   // AudioContext for playback
-  let audioBuffer  = null;   // fully decoded PCM buffer
-  let sourceNode2  = null;   // current AudioBufferSourceNode
-  let playStartAt  = 0;      // playCtx.currentTime when playback started
-  let pausedAt     = 0;      // offset in buffer where we paused
-  let isPlaying    = false;
-
-  function getDur() { return audioBuffer ? audioBuffer.duration : knownDuration; }
-
-  function ensurePlayCtx() {
-    if (!playCtx || playCtx.state === 'closed') {
-      playCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    // resume if suspended (mobile requires user-gesture unlock)
-    if (playCtx.state === 'suspended') playCtx.resume();
-  }
-
-  function onRecordStop() {
-    const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
-    audioChunks = [];
-
-    ensurePlayCtx();
-
-    // Show card immediately so user sees feedback — times update when decode finishes
-    timeTot.textContent = fmt(knownDuration);
-    timeNow.textContent = '00:00';
-    playbackCard.classList.add('visible');
-
-    blob.arrayBuffer().then(ab => playCtx.decodeAudioData(ab)).then(buf => {
-      audioBuffer   = buf;
-      knownDuration = buf.duration;
-      pausedAt      = 0;
-      timeTot.textContent = fmt(buf.duration);
-      startAudioBuffer(0);
-    }).catch(err => {
-      console.error('decodeAudioData failed', err);
-      setError('Could not decode audio. Please try again.');
-    });
-  }
-
-  function startAudioBuffer(offset) {
-    if (!audioBuffer || !playCtx) return;
-    stopAudioBuffer();
-    ensurePlayCtx();
-
-    sourceNode2 = playCtx.createBufferSource();
-    sourceNode2.buffer = audioBuffer;
-    sourceNode2.connect(playCtx.destination);
-    sourceNode2.onended = () => {
-      if (!isPlaying) return;  // stopped manually
-      isPlaying = false;
-      pausedAt = 0;
-      onPlaybackEnded();
-    };
-
-    playStartAt = playCtx.currentTime - offset;
-    sourceNode2.start(0, offset);
-    isPlaying = true;
-
-    setState(S.PLAYING);
-    setWaveMode('playing');
-    updatePlayPill();
-    startProgressRaf();
-  }
-
-  function stopAudioBuffer() {
-    if (sourceNode2) {
-      sourceNode2.onended = null;
-      try { sourceNode2.stop(); } catch(e) {}
-      sourceNode2.disconnect();
-      sourceNode2 = null;
-    }
-    isPlaying = false;
-    stopProgressRaf();
-  }
-
-  function pauseAudioBuffer() {
-    if (!isPlaying) return;
-    pausedAt = playCtx.currentTime - playStartAt;
-    stopAudioBuffer();
-    setState(S.FINISHED);
-    setWaveMode('finished');
-    updatePlayPill();
-  }
-
-  function onPlaybackEnded() {
-    stopProgressRaf();
-    setState(S.FINISHED);
-    setWaveMode('finished');
-    updatePlayPill();
-    progressFill.style.width = '100%';
-    progressThumb.style.left = '100%';
-    timeNow.textContent = fmt(getDur());
-  }
-
-  function getPlaybackTime() {
-    if (!playCtx) return pausedAt;
-    if (isPlaying) return playCtx.currentTime - playStartAt;
-    return pausedAt;
-  }
-
-  // ── PROGRESS RAF ─────────────────────────────────────────────────────────
-  let progressRaf = null;
-
-  function startProgressRaf() {
-    stopProgressRaf();
-    const dur = getDur();
-    const tick = () => {
-      const cur = getPlaybackTime();
-      const pct = Math.min((cur / dur) * 100, 100);
-      progressFill.style.width = pct + '%';
-      progressThumb.style.left = pct + '%';
-      timeNow.textContent = fmt(cur);
-      progressRaf = requestAnimationFrame(tick);
-    };
-    progressRaf = requestAnimationFrame(tick);
-  }
-
-  function stopProgressRaf() {
-    if (progressRaf) { cancelAnimationFrame(progressRaf); progressRaf = null; }
-  }
-
+  /* ── UI ── */
   function updatePlayPill() {
     if (state === S.PLAYING) {
       playPillIcon.textContent = '■'; playPillLabel.textContent = 'Stop';
@@ -644,57 +487,50 @@
 
   playPill.addEventListener('click', () => {
     if (!audioBuffer) return;
-    if (state === S.PLAYING) {
-      pauseAudioBuffer();
-    } else {
-      const offset = (state === S.FINISHED && pausedAt === 0) ? 0 : pausedAt;
-      startAudioBuffer(offset);
-    }
+    if (state === S.PLAYING) pausePlayback();
+    else playFromOffset(pausedAt);
   });
 
-  // ── PROGRESS DRAG ────────────────────────────────────────────────────────
+  /* progress drag */
   let dragging = false;
   function seekX(x) {
+    if (!audioBuffer) return;
     const rect = progressTrack.getBoundingClientRect();
     const pct  = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
-    const dur  = getDur();
-    pausedAt   = pct * dur;
+    pausedAt   = pct * audioBuffer.duration;
     progressFill.style.width = (pct*100)+'%';
     progressThumb.style.left = (pct*100)+'%';
     timeNow.textContent = fmt(pausedAt);
-    if (isPlaying) startAudioBuffer(pausedAt);
+    if (isPlaying) playFromOffset(pausedAt);
   }
-  progressTrack.addEventListener('pointerdown', e => { if (!audioBuffer) return; dragging=true; progressTrack.setPointerCapture(e.pointerId); seekX(e.clientX); });
+  progressTrack.addEventListener('pointerdown', e => { dragging=true; progressTrack.setPointerCapture(e.pointerId); seekX(e.clientX); });
   progressTrack.addEventListener('pointermove', e => { if (dragging) seekX(e.clientX); });
-  progressTrack.addEventListener('pointerup', () => { dragging = false; });
+  progressTrack.addEventListener('pointerup',   () => { dragging = false; });
 
   function setState(s) {
     state = s;
     const labels = { idle:'Ready', recording:'Recording...', playing:'Playing...', finished:'Finished' };
     statusLabel.textContent = labels[s];
-    statusLabel.className = 'status-label ' + (s !== S.IDLE ? s : '');
+    statusLabel.className   = 'status-label ' + (s !== S.IDLE ? s : '');
 
-    // circle display
     if (s === S.RECORDING) {
-      micFace.classList.add('recording'); micFace.classList.remove('playing');
-      micRing.classList.add('recording'); micRing.classList.remove('playing');
+      micFace.classList.add('recording');    micFace.classList.remove('playing');
+      micRing.classList.add('recording');    micRing.classList.remove('playing');
     } else if (s === S.PLAYING) {
       micFace.classList.remove('recording'); micFace.classList.add('playing');
       micRing.classList.remove('recording'); micRing.classList.add('playing');
     } else {
-      micFace.classList.remove('recording','playing');
-      micRing.classList.remove('recording','playing');
+      micFace.classList.remove('recording', 'playing');
+      micRing.classList.remove('recording', 'playing');
     }
 
-    // main button (always visible, just changes label/color)
     if (s === S.RECORDING) {
       mainBtn.className = 'main-btn state-recording';
-      mainBtnIcon.textContent = '■';
-      mainBtnLabel.textContent = 'Stop Recording';
+      mainBtnIcon.textContent = '■'; mainBtnLabel.textContent = 'Stop Recording';
     } else {
       mainBtn.className = 'main-btn state-idle';
       mainBtnIcon.textContent = '🎤';
-      mainBtnLabel.textContent = s === S.FINISHED || s === S.PLAYING ? 'New Recording' : 'Start Recording';
+      mainBtnLabel.textContent = (s === S.FINISHED || s === S.PLAYING) ? 'New Recording' : 'Start Recording';
     }
 
     if (s === S.IDLE || s === S.RECORDING) {
@@ -712,19 +548,15 @@
     if (state === S.RECORDING) {
       stopRecording();
     } else {
-      if (state === S.PLAYING) pauseAudioBuffer();
-      stopAudioBuffer();
-      audioBuffer = null; pausedAt = 0;
+      stopSource(); audioBuffer = null; pausedAt = 0;
       startRecording();
     }
   });
 
   window.addEventListener('beforeunload', () => {
-    stopProgressRaf(); stopAudioBuffer();
-    if (currentURL) { URL.revokeObjectURL(currentURL); }
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stream.getTracks().forEach(t => t.stop());
-    if (audioCtx) audioCtx.close();
-    if (playCtx) playCtx.close();
+    stopSource(); stopViz(); stopProgressRaf();
+    if (micStream) micStream.getTracks().forEach(t => t.stop());
+    if (ac) ac.close();
   });
 
   setState(S.IDLE);
